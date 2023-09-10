@@ -8,7 +8,61 @@ API REST no oficial de Filmaffinity en castellano
 
 Esta es una API REST que utiliza WEB SCRAPING para extraer información de Filmaffinity (Sept 2023).
 
-Es importante mencionar que se trata de una API no oficial, por lo que blablabla...
+Es importante mencionar que se trata de una API no oficial, por lo que es probable que en algún momento empiece a fallar, y se quede sin mantenimiento.
+
+Aunque puedes ejecutarla en local, se ha creado un fichero dockerfile, para asegurar el funcionamiento.
+
+### Ejecución en local
+
+Se ha comprobado que funciona correctamente (aunque con bastantes warning) en la versión v10.24.1 de nodejs.
+```bash
+    $ node --version
+```
+
+Ejecuta el siguiente comando para instalar las dependencias correspondientes.
+```bash
+    $ npm install
+```
+
+Inicia el proyecto.
+```bash
+    $ npm start
+```
+
+### Ejecución en docker
+
+Asegura que tienes instalado docker en tu sistema.
+```bash
+    $ docker --version
+```
+
+Crea la imagen a partir del proyecto, salvo los warning, debería de generar la imagen correctamente (pesa alrededor de 950MB).
+```bash
+    $ docker build -t api_filmaffinity .
+```
+
+Una vez generada, monta el contenedor y ejecutalo.
+Hay que tener en cuenta la redirección de puertos.
+- ${host} : es donde estará escuchando nuestro pc (los ejemplos de esta guía están con el puerto 3000).
+- ${contenedor} : es donde escucha el contenedor (por defecto está configurado en el dockerfile en el puerto 3000)
+```bash
+    $ docker run -p ${host}:${contenedor} --name api_film api_filmaffinity
+```
+
+Llegado a este punto, tan solo tienes que poner en tu navegador la dirección siguiente para comprobar que está correctamente inicializado.
+```bash
+    http://localhost:3000/
+```
+
+Acuerdate de parar el contenedor, si es necesario con:
+```bash
+    $ docker stop api_film
+```
+
+Cada vez que quiera volver a levantarlo será:
+```bash
+    $ docker start -a api_film
+```
 
 ## API-REST
 
