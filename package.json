@@ -1,11 +1,23 @@
 {
   "name": "filmaffinity-api",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "main": "index.js",
+  "description": "API para acceder a datos de Filmaffinity.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Karmelo1984/api-filmaffinity"
+  },
+  "keywords": ["Filmaffinity", "API", "Node.js"],
+  "contributors": [
+    {
+      "name": "Carlos Ramosa",
+      "url": "https://github.com/carlosramosa/api-filmaffinity"
+    }
+  ],
   "scripts": {
-    "start": "nodemon ./server.js",
-    "lazygit": "git add .; git commit -m'commit'; git push origin master"
+    "start": "nodemon ./server.js"
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.2",
