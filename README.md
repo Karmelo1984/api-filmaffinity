@@ -2,7 +2,7 @@
 API REST no oficial de Filmaffinity en castellano
 
 - [Basada en la desarrollada por Carlos Ramos [09 Dec 2017]](https://github.com/carlosramosa/api-filmaffinity)
-- Modificada por Carmelo Molero [09 Sep 2023]
+- [Adaptada por Carmelo Molero [09 Sep 2023]](https://github.com/Karmelo1984/api-filmaffinity)
 
 ## Introducción
 
@@ -38,30 +38,39 @@ Asegura que tienes instalado docker en tu sistema.
 
 Crea la imagen a partir del proyecto, salvo los warning, debería de generar la imagen correctamente (pesa alrededor de 950MB).
 ```bash
-    $ docker build -t api_filmaffinity .
+    $ docker build -t api_filmaffinity:${etiqueta} .
 ```
 
-Una vez generada, monta el contenedor y ejecutalo.
-Hay que tener en cuenta la redirección de puertos.
-- ${host} : es donde estará escuchando nuestro pc (los ejemplos de esta guía están con el puerto 3000).
-- ${contenedor} : es donde escucha el contenedor (por defecto está configurado en el dockerfile en el puerto 3000)
+O descarga la imagen:
 ```bash
-    $ docker run -p ${host}:${contenedor} --name api_film api_filmaffinity
+    $ docker pull api_filmaffinity:${etiqueta}
+```
+
+Una vez terminada la generación de la imagen, o terminada la descarga, verifica que está disponible en tu sistema con:
+```bash
+    $ docker images
+```
+
+Tened en en cuenta la redirección de puertos:
+- ${port_host} : es donde estará escuchando nuestro pc (los ejemplos de esta guía están con el puerto 3000).
+- ${port_contenedor} : es donde escucha el contenedor (por defecto está configurado en el dockerfile en el puerto 3000)
+```bash
+    $ docker run -p ${port_host}:${port_contenedor} --name ${nombre_del_contenedor} ${nombre_o_id_de_la_imagen}
 ```
 
 Llegado a este punto, tan solo tienes que poner en tu navegador la dirección siguiente para comprobar que está correctamente inicializado.
 ```bash
-    http://localhost:3000/
+    http://localhost:${port_host}/
 ```
 
-Acuerdate de parar el contenedor, si es necesario con:
+Para parar el contenedor:
 ```bash
-    $ docker stop api_film
+    $ docker stop ${nombre_del_contenedor}
 ```
 
-Cada vez que quiera volver a levantarlo será:
+Para volver a ejecutarlo en primer plano (si lo quieres ejecutar en segundo plano, elimina el flag '-a'):
 ```bash
-    $ docker start -a api_film
+    $ docker start -a ${nombre_del_contenedor}
 ```
 
 ## API-REST
