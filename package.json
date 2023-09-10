@@ -1,28 +1,20 @@
 {
-  "name": "mi-api",
-  "version": "0.0.0",
+  "name": "filmaffinity-api",
+  "version": "0.0.1",
   "private": true,
+  "main": "index.js",
   "scripts": {
-    "start": "nodemon ./bin/www",
-    "lazygit":"git add .; git commit -m'commit'; git push origin master"
+    "start": "nodemon ./server.js",
+    "lazygit": "git add .; git commit -m'commit'; git push origin master"
   },
   "dependencies": {
-    "body-parser": "~1.18.2",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.9",
+    "cheerio": "1.0.0-rc.2",
+    "cors": "2.8.5",
     "express": "~4.15.5",
-    "jade": "~1.11.0",
-    "morgan": "~1.9.0",
-    "serve-favicon": "~2.4.5",
-    "stylus": "0.54.5",
-    "after-load": "^1.0.4",
-    "cheerio": "^1.0.0-rc.2",
-    "html": "^1.0.0",
-    "htmlparser": "^1.7.7",
     "http": "0.0.0",
-    "mongoose": "~3.6.13",
-    "nodemon": "^1.12.5",
-    "swagger": "^0.7.5",
-    "swagger-ui-express": "^2.0.11"
+    "markdown-it": "13.0.1",
+    "nodemon": "1.12.5",
+    "request": "2.88.2",
+    "request-promise": "4.2.6"
   }
 }

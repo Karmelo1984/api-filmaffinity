@@ -1,5 +1,5 @@
-# Usa una imagen base de Node.js
-FROM node:10.24.1
+# Define tu propia imagen "onbuild" basada en la imagen Node.js
+FROM node:10.24.1 AS onbuild
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /usr/src/app
@@ -13,6 +13,8 @@ RUN npm install
 # Expone el puerto en el que tu aplicación se ejecutará
 EXPOSE 3000
 
+# Ahora, define una nueva imagen que se basará en tu imagen "onbuild"
+FROM onbuild
+
 # Comando para ejecutar tu aplicación
 CMD ["node", "server.js"]
-

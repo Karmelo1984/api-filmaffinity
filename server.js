@@ -1,43 +1,77 @@
-// server.js
+const PORT = 3000;
 
-// BASE SETUP
-// =============================================================================
+const express   = require('express');
+const cors      = require('cors');
+const app       = express()
 
-// call the packages we need
-const express    = require('express');
-const app        = express();
-const bodyParser = require('body-parser');
-const cheerio = require('cheerio');
+app.use(cors())
 
-// configure app to use bodyParser()
-// this will let us get the data from a POST
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const { getSearch, getInfoFilm } = require('./utils/webScraper.js');
+const { sendReadmeAsHtml } = require('./utils/description.js');
+const { getCurrentFormattedDate } = require('./utils/utils.js');
 
-const port = process.env.PORT || 8080;        // set our port
 
-// ROUTES FOR OUR API
-// =============================================================================
-const router = express.Router();              // get an instance of the express Router
+/**
+ * Inicializa el servidor y escucha en el puerto especificado.
+ *
+ * @param {number} PORT     - Puerto en el que se iniciará el servidor.
+ */
+app.listen(PORT, () => {
+    console.log(`\n[${getCurrentFormattedDate()}] --> Server is up and running at port ${PORT}`);
+})
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res, next) {
-    res.render('/views/index.jade', { title: 'Express' });
-});
 
-var request = require("request");
+/**
+ * Maneja las solicitudes GET en la ruta raíz y envía un mensaje de confirmación.
+ *
+ * @param {object} req      - Objeto de solicitud HTTP.
+ * @param {object} res      - Objeto de respuesta HTTP.
+ */
+app.get('/', (req, res) => {
+    console.log(`[${getCurrentFormattedDate()}] --> GET: ${req.hostname}${req.url}`);
+	res.send('✅ Unofficial Filmaffinity REST API server is online')
+})
 
-require('./controller/info-pelicula')(app);
 
-require('./controller/busqueda-pelicula')(app);
+/**
+ * Maneja las solicitudes GET en la ruta '/api' y envía el contenido HTML del archivo README como respuesta.
+ *
+ * @param {object} req      - Objeto de solicitud HTTP.
+ * @param {object} res      - Objeto de respuesta HTTP.
+ */
+app.get('/api', (req, res) => {
+    console.log(`[${getCurrentFormattedDate()}] --> GET: ${req.hostname}${req.url}`);
+    res.send(sendReadmeAsHtml());
+})
 
-// more routes for our API will happen here
 
-// REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
-app.use('/api', router);
+/**
+ * Maneja las solicitudes GET para buscar películas en Filmaffinity por título.
+ *
+ * @param {object} req      - Objeto de solicitud HTTP.
+ * @param {object} res      - Objeto de respuesta HTTP.
+ * @returns {Promise<void>} - Promesa que resuelve cuando se envía la lista de películas coincidentes.
+ */
+app.get('/api/search', async (req, res) => {
+    const url = `https://www.filmaffinity.com/es/search.php?stype=title&stext=${req.query.str}`;
+    console.log(`[${getCurrentFormattedDate()}] --> GET: ${req.hostname}${req.url}  <-->  URL: ${url}`);
+    res.send(await getSearch(url));
+})
 
-// START THE SERVER
-// =============================================================================
-app.listen(port);
-console.log('Magic happens on port ' + port);
+
+/**
+ * Maneja las solicitudes GET para obtener información de una película en Filmaffinity por su ID.
+ *
+ * @param {object} req      - Objeto de solicitud HTTP.
+ * @param {object} res      - Objeto de respuesta HTTP.
+ * @returns {Promise<void>} - Promesa que resuelve cuando se envía la información de la película.
+ */
+app.get('/api/film', async (req, res) => {
+    const url = `https://www.filmaffinity.com/es/film${req.query.id}.html`;
+    console.log(`[${getCurrentFormattedDate()}] --> GET: ${req.hostname}${req.url}  <-->  URL: ${url}`);
+    res.send(await getInfoFilm(url));
+})
+
+
+
+
