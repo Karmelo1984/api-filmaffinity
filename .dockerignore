@@ -1,5 +1,20 @@
+.vscode
+
+tests
+jest.config.ts
+
+.env.example
+
 .git
+.gitattributes
 .gitignore
 
+.prettierrc.json
+
+dockerfile_onbuild
+
+tsconfig.json
+
 node_modules
+yarn.lock
 package-lock.json
