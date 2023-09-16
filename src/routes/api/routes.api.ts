@@ -1,18 +1,33 @@
 import { Request, Response } from 'express';
 import express from 'express';
-const router = express.Router();
+import logger from '../../logger';
+import { sendReadmeAsHtml } from '../../utils/generateHTML';
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+const apiMD = path.join(__dirname, '../../../docs/api.md');
+const cssFilePath = path.join(__dirname, '../../styles/style_03.css');
+
 export { router };
 
-import logger from '../../logger';
+const router = express.Router();
 
 /**
- * Manejador de ruta GET.
+ * Maneja una solicitud HTTP GET en la ruta ('/api') y responde con un contenido HTML generado a partir de archivos.
  *
  * @function '/api'
- * @description Muestra información sobre la api.
- * @param {Request} req Petición HTTP.
- * @param {Response} res Respuesta HTTP.
+ * @param {Request} req - Objeto de solicitud Express.
+ * @param {Response} res - Objeto de respuesta Express.
+ * @returns {void}
  */
 router.get('/', (req: Request, res: Response) => {
-   res.send('✅ http://localhost:3000/api');
+   logger.info(`router.get /api/  -->  `);
+
+   const data: string = fs.readFileSync(apiMD, 'utf8');
+   const styleCss: string = fs.readFileSync(cssFilePath, 'utf8');
+
+   const result = sendReadmeAsHtml(data, styleCss);
+
+   res.send(result);
 });

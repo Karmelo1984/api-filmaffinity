@@ -1,113 +1,20 @@
-# api-filmaffinity
+# API-REST
 
-API REST no oficial de Filmaffinity en castellano. Desarrollada desde cero con NodeJS y Typescript.
-
-## Introducción
-
-Esta es una API REST que utiliza WEB SCRAPING tanto para hacer búsquedas como para extraer información de películas y
-series de [Filmaffinity](https://www.filmaffinity.com/es/main.html).
-
-Está preparada tanto para la ejecución en local, como para crear una imagen en docker.
-[Ver en docker hub](https://hub.docker.com/repository/docker/karmelo1984/filmaffinity/general)
-
-### Ejecución en local
-
-Es necesaria la versión v18.17.1 de nodejs.
-
-```bash
-    $ node --version
-```
-
-Se ha usado yarn, en la versión 1.22.19, como gestor de paquetes.
-
-```bash
-    $ yarn --version
-```
-
-Ejecuta el siguiente comando para instalar las dependencias correspondientes.
-
-```bash
-    $ yarn
-```
-
-Inicia el proyecto en modo desarrollo.
-
-```bash
-    $ yarn run dev
-```
-
-### Ejecución en docker
-
-Asegura que tienes instalado docker en tu sistema.
-
-```bash
-    $ docker --version
-```
-
-Crea la imagen a partir del proyecto, salvo los warning, debería de generar la imagen correctamente (pesa alrededor de
-950MB).
-
-```bash
-    $ docker build -t api_filmaffinity:${etiqueta} .
-```
-
-O descarga la imagen:
-
-```bash
-    $ docker pull api_filmaffinity:${etiqueta}
-```
-
-Una vez terminada la generación de la imagen, o terminada la descarga, verifica que está disponible en tu sistema con:
-
-```bash
-    $ docker images
-```
-
-Tened en en cuenta la redirección de puertos:
-
--  ${port_host} : es donde estará escuchando nuestro pc (los ejemplos de esta guía están con el puerto 3000).
--  ${port_contenedor} : es donde escucha el contenedor (por defecto está configurado en el dockerfile en el puerto 3000)
-
-```bash
-    $ docker run -p ${port_host}:${port_contenedor} --name ${nombre_del_contenedor} ${nombre_o_id_de_la_imagen}
-```
-
-Llegado a este punto, tan solo tienes que poner en tu navegador la dirección siguiente para comprobar que está
-correctamente inicializado.
-
-```bash
-    http://localhost:${port_host}/
-```
-
-Para parar el contenedor:
-
-```bash
-    $ docker stop ${nombre_del_contenedor}
-```
-
-Para volver a ejecutarlo en primer plano (si lo quieres ejecutar en segundo plano, elimina el flag '-a'):
-
-```bash
-    $ docker start -a ${nombre_del_contenedor}
-```
-
-## API-REST
-
-### Búsqueda de películas por título
+## Búsqueda de películas por título
 
 Busca todas las películas cuyo título se adapta al patrón indicado.
 
 -  Método: GET
 -  URL: `http://localhost:3000/api/search?lang=${'es'|'en'}&query=${patrón a buscar}`
 
-### Extraer datos mediante un ID de Filmaffinity
+## Extraer datos mediante un ID de Filmaffinity
 
 Obtiene los datos de una película o serie mediante un ID de Filmaffinity.
 
 -  Método: GET
 -  URL: `http://localhost:3000/api/film?lang=${'es'|'en'}&id=${id}`
 
-### Extraer datos mediante un URL de Filmaffinity
+## Extraer datos mediante un URL de Filmaffinity
 
 Obtiene los datos de una película o serie mediante una URL completa de Filmaffinity.
 
@@ -115,11 +22,11 @@ Obtiene los datos de una película o serie mediante una URL completa de Filmaffi
 -  URL: `http://localhost:3000/api/film`
 -  BODY: {"url": "https://www.filmaffinity.com/es/film819745.html"}
 
-## Ejemplos de uso
+# Ejemplos de uso
 
-### Búsqueda de películas cuyo título coincida con el string de búsqueda introducido
+## Búsqueda de películas cuyo título coincida con el string de búsqueda introducido
 
-#### Ejemplo 1
+## Ejemplo 1
 
 GET http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo
 
@@ -152,7 +59,7 @@ GET http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo
 ]
 ```
 
-#### Ejemplo 2
+## Ejemplo 2
 
 GET http://localhost:3000/api/search?lang=en&query=menace+phantom
 
@@ -167,9 +74,9 @@ GET http://localhost:3000/api/search?lang=en&query=menace+phantom
 ]
 ```
 
-### Búsqueda de una película a través de su ID
+## Búsqueda de una película a través de su ID
 
-#### Ejemplo 1
+## Ejemplo 1
 
 GET http://localhost:3000/api/film?lang=es&id=470268
 
@@ -194,7 +101,7 @@ GET http://localhost:3000/api/film?lang=es&id=470268
 }
 ```
 
-#### Ejemplo 2
+## Ejemplo 2
 
 GET http://localhost:3000/api/film?lang=en&id=267008
 
@@ -219,7 +126,7 @@ GET http://localhost:3000/api/film?lang=en&id=267008
 }
 ```
 
-#### Ejemplo 3
+## Ejemplo 3
 
 POST http://localhost:3000/api/film
 

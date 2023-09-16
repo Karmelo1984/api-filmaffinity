@@ -23,12 +23,35 @@ const router = express.Router();
  */
 router.get('/', processRequest, async (req: Request, res: Response) => {
    const payload = res.locals.processedData;
-   logger.info(`[${'router.get /api/film'.padEnd(25, ' ')}]  -->  payload: ${JSON.stringify(payload)}`);
+   logger.info(`router.get /api/film  -->  payload: ${JSON.stringify(payload)}`);
 
    const values: FilmRequest = {
       lang: payload.query.lang,
       id: payload.query.id,
+      url: payload.body.url,
+   };
+   const result = await getInfoFilm(values);
+   logger.info(`router.get /api/search  -->  result: ${JSON.stringify(result)}`);
+
+   return res.send(result);
+});
+
+router.post('/', processRequest, async (req: Request, res: Response) => {
+   const payload = res.locals.processedData;
+   logger.info(`router.post /api/film  -->  payload: ${JSON.stringify(payload)}`);
+
+   const url: string = payload.body.url ?? '';
+   const regex = /https:\/\/www.filmaffinity\.com\/(?<lang>\w+)\/film(?<id>\d+)\.html/;
+   const match = url.match(regex);
+
+   const values: FilmRequest = {
+      lang: payload.query.lang || (match && match.groups?.lang) || '',
+      id: payload.query.id || (match && match.groups?.id) || '',
+      url: url,
    };
 
-   return res.send(await getInfoFilm(values));
+   const result = await getInfoFilm(values);
+   logger.info(`router.post /api/search  -->  result: ${JSON.stringify(result)}`);
+
+   return res.send(result);
 });

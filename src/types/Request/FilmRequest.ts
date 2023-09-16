@@ -1,4 +1,5 @@
 export interface FilmRequest {
    lang: 'es' | 'en';
-   id: number;
+   id?: number;
+   url?: string;
 }

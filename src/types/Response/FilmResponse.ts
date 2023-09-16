@@ -14,4 +14,5 @@ export interface FilmResponse {
    sinopsis: string;
    nota: number;
    votos: number;
+   img: string;
 }

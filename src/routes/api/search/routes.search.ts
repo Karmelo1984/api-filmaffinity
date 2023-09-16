@@ -24,11 +24,12 @@ const router = express.Router();
  */
 router.get('/', processRequest, async (req: Request, res: Response) => {
    const payload = res.locals.processedData;
-   logger.info(`[${'router.get /api/search'.padEnd(25, ' ')}]  -->  payload: ${JSON.stringify(payload)}`);
+   logger.info(`router.get /api/search  -->  payload: ${JSON.stringify(payload)}`);
 
    const values: SearchRequest = {
       lang: payload.query.lang,
       query: payload.query.query,
+      year: payload.query.year,
    };
 
    const validationResult = validateSearchRequest(values);
@@ -37,6 +38,8 @@ router.get('/', processRequest, async (req: Request, res: Response) => {
       logger.error(`${validationResult.message}  -->  ${JSON.stringify(payload)}`);
       return res.status(validationResult.statusCode).json({ error: validationResult.message });
    }
+   const result = await getSearch(values);
+   logger.info(`router.get /api/search  -->  result: ${JSON.stringify(result)}`);
 
-   return res.send(await getSearch(values));
+   return res.send(result);
 });

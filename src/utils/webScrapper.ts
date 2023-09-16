@@ -10,8 +10,6 @@ import { FilmResponse } from '../types/Response/FilmResponse';
 import { FilmRequest } from '../types/Request/FilmRequest';
 import { SearchRequest } from '../types/Request/SearchRequest';
 
-const HEAD_LEN = parseInt(process.env.HEAD_LEN ?? '0', 10);
-
 /**
  * Realiza una búsqueda en 'FilmAffinity' y devuelve una lista de resultados de búsqueda.
  *
@@ -20,70 +18,23 @@ const HEAD_LEN = parseInt(process.env.HEAD_LEN ?? '0', 10);
  * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la búsqueda.
  */
 export async function getSearch(search: SearchRequest): Promise<SearchResponse[] | CustomError> {
-   logger.info(`[${'getSearch'.padEnd(HEAD_LEN, ' ')}]  -->  search: ${JSON.stringify(search)}`);
+   logger.info(`getSearch  -->  search: ${JSON.stringify(search)}`);
 
    const url = `https://www.filmaffinity.com/${search.lang}/search.php?stype=title&stext=${encodeURIComponent(
       search.query,
    )}`;
 
-   logger.debug(`[${'getSearch'.padEnd(HEAD_LEN, ' ')}]  -->  url: ${url}`);
-
    try {
-      const $ = await cargarPagina(url);
-
-      const result: SearchResponse[] = [];
-      if (checkTitleForBusqueda($)) {
-         $('.se-it.mt').each(function () {
-            const enlace = $(this).find('.mc-title a').attr('href');
-            if (enlace === undefined) {
-               // Si enlace es undefined, salta a la siguiente iteración del bucle
-               return;
-            }
-            const id = enlace.match(/film(\d+)\.html/)![1];
-
-            result.push({
-               id: parseInt(id, 10),
-               titulo: $(this).find('.mc-title a').text().trim(),
-               anyo: parseInt($(this).find('.ye-w').text(), 10),
-               link: enlace,
-            });
-         });
-      } else {
-         const enlace = $('meta[property="og:url"]').attr('content') || '';
-         const matchResult = enlace.match(/film(\d+)\.html/);
-
-         if (matchResult === null) {
-            const msg = 'Film not found';
-            logger.error(`[${'getSearch'.padEnd(HEAD_LEN, ' ')}]  -->  ${msg}`);
-
-            const customError: CustomError = {
-               statusCode: 404,
-               message: msg,
-            };
-
-            return customError;
-         }
-
-         result.push({
-            id: parseInt(matchResult[1], 10),
-            titulo: $('h1#main-title span[itemprop="name"]').text().trim(),
-            anyo: parseInt(getTextFromCheerioAPI($, search.lang, 'Año', 'Year'), 10),
-            link: enlace,
-         });
-      }
+      logger.debug(`getSearch  -->  search: ${JSON.stringify(search)}`);
+      const result = await getSearchedFilms(url, search);
 
       return result;
    } catch (error) {
-      const msg = (error as any).message;
-      logger.error(`[${'getSearch'.padEnd(HEAD_LEN, ' ')}]  -->  ${msg}`);
-
-      const customError: CustomError = {
+      logger.error(`getSearch  -->  search: ${JSON.stringify(search)}`);
+      return {
          statusCode: (error as any).statusCode,
-         message: msg,
-         body: (error as any).response ? (error as any).response.body : undefined,
+         message: (error as any).body,
       };
-
-      throw customError;
    }
 }
 
@@ -95,13 +46,16 @@ export async function getSearch(search: SearchRequest): Promise<SearchResponse[]
  * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la obtención de información de la película.
  */
 export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | CustomError> {
-   logger.info(`[${'getInfoFilm'.padEnd(HEAD_LEN, ' ')}]  -->  film: ${JSON.stringify(film)}`);
+   logger.info(`getInfoFilm  -->  film: ${JSON.stringify(film)}`);
 
-   const url = `https://www.filmaffinity.com/${film.lang}/film${film.id}.html`;
+   const url = film.url ? film.url : `https://www.filmaffinity.com/${film.lang}/film${film.id}.html`;
 
+   console.log(url);
    try {
+      logger.debug(`getInfoFilm  -->  search: ${JSON.stringify(film)}`);
       return await getFilmInfoFromUrl(film.lang, url);
    } catch (error) {
+      logger.error(`getInfoFilm  -->  search: ${JSON.stringify(film)}`);
       return {
          statusCode: (error as any).statusCode,
          message: (error as any).body,
@@ -119,9 +73,10 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
  * @throws {CustomError} - Lanza un error personalizado si la búsqueda falla debido a un error en la solicitud o procesamiento de datos.
  */
 async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmResponse | CustomError> {
-   logger.debug(`[${'getFilmInfoFromUrl'.padEnd(HEAD_LEN, ' ')}]  -->  url: ${url}`);
+   logger.debug(`getFilmInfoFromUrl  -->  url: ${url}`);
+   const inSpanish = lang === 'es';
    try {
-      const $ = await cargarPagina(url);
+      const $ = await getPageHTML(url);
 
       const titulo = $('h1#main-title span[itemprop="name"]').text().trim();
 
@@ -133,48 +88,36 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          .get()
          .join(' | ');
 
-      const generos = $(`dt:contains("${lang === 'es' ? 'Género' : 'Genre'}")`)
-         .next()
-         .find('span[itemprop="genre"] a')
-         .map(function () {
-            return $(this).text().trim();
-         })
-         .get()
-         .join(' | '); // Unir los géneros en una cadena separada por '|'
+      const generos = arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a');
 
-      const companias = $(`dt:contains("${lang === 'es' ? 'Compañías' : 'Producer'}")`)
-         .next()
-         .find('a')
-         .map(function () {
-            return $(this).text().trim();
-         })
-         .get()
-         .join(' | ');
+      const companias = arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a');
 
       const nota = $('#movie-rat-avg').attr('content');
       const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
+      const img = $('img[itemprop="image"]').attr('src');
 
       const result: FilmResponse = {
          titulo: titulo,
-         titulo_original: getTextFromCheerioAPI($, lang, 'Título original', 'Original title').replace(/aka$/, ''),
-         anyo: parseInt(getTextFromCheerioAPI($, lang, 'Año', 'Year'), 10),
-         duracion: getTextFromCheerioAPI($, lang, 'Duración', 'Running time'),
-         pais: getTextFromCheerioAPI($, lang, 'País', 'Country'),
-         direccion: getTextFromCheerioAPI($, lang, 'Dirección', 'Director'),
-         guion: getTextFromCheerioAPI($, lang, 'Guion', 'Screenwriter').replace('.  Novela', ' | Novela'),
+         titulo_original: getTextFromCheerioAPI($, inSpanish, 'Título original', 'Original title').replace(/aka$/, ''),
+         anyo: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
+         duracion: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
+         pais: getTextFromCheerioAPI($, inSpanish, 'País', 'Country'),
+         direccion: getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
+         guion: getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter').replace('.  Novela', ' | Novela'),
          reparto: reparto,
-         musica: getTextFromCheerioAPI($, lang, 'Música', 'Music'),
-         fotografia: getTextFromCheerioAPI($, lang, 'Fotografía', 'Cinematography'),
+         musica: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music'),
+         fotografia: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography'),
          companias: companias,
          genero: generos,
-         sinopsis: getTextFromCheerioAPI($, lang, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
+         sinopsis: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
          nota: nota !== undefined ? parseFloat(nota) : 0,
          votos: votos !== undefined ? parseInt(votos, 10) : 0,
+         img: img ?? '',
       };
 
       return result;
    } catch (error) {
-      logger.error(`[${'getFilmInfoFromUrl'.padEnd(HEAD_LEN, ' ')}]  -->  ${(error as any).body.padEnd(40, '')}`);
+      logger.error(`getFilmInfoFromUrl  -->  ${(error as any).body.padEnd(40, '')}`);
 
       return {
          statusCode: (error as any).statusCode,
@@ -191,25 +134,20 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
  * @throws {Error}         - Lanza un error si ocurre un problema durante la verificación del título.
  */
 function checkTitleForBusqueda($: CheerioAPI): boolean {
-   logger.info(
-      `[${'checkTitleForBusqueda'.padEnd(HEAD_LEN, ' ')}]  -->  $: ${$.html()
-         .replace(/\s+/g, ' ')
-         .trim()
-         .slice(0, 75)}`,
-   );
+   logger.info(`checkTitleForBusqueda  -->  $: ${$.html()}`);
 
    try {
       const pageTitle = $('head title').text();
 
       // Verifica si el título comienza con "Búsqueda de"
       const isSearch = pageTitle.startsWith('Búsqueda de "') || pageTitle.startsWith('Search for "');
-      logger.debug(`[${'checkTitleForBusqueda'.padEnd(HEAD_LEN, ' ')}]  -->  isOneFilm: ${!isSearch}`);
+      logger.debug(`checkTitleForBusqueda  -->  isOneFilm: ${!isSearch}`);
 
       return isSearch;
    } catch (error) {
       const msg = 'Error al verificar el título de la página';
 
-      logger.error(`[${'checkTitleForBusqueda'.padEnd(HEAD_LEN, ' ')}]  -->  ${msg}`);
+      logger.error(`checkTitleForBusqueda  -->  ${msg}`);
       throw new Error(`${msg}`);
    }
 }
@@ -221,8 +159,8 @@ function checkTitleForBusqueda($: CheerioAPI): boolean {
  * @returns {Promise<CheerioAPI>}   - Un objeto Cheerio que representa el contenido de la página web cargada.
  * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la carga de la página o la solicitud.
  */
-async function cargarPagina(url: string): Promise<CheerioAPI> {
-   logger.info(`[${'cargarPagina'.padEnd(HEAD_LEN, ' ')}]  -->  url: ${url}`);
+async function getPageHTML(url: string): Promise<CheerioAPI> {
+   logger.info(`getPageHTML  -->  url: ${url}`);
 
    try {
       const body = await request({
@@ -233,7 +171,7 @@ async function cargarPagina(url: string): Promise<CheerioAPI> {
       return cheerio.load(body);
    } catch (error) {
       const msg = (error as any).message || 'Error al realizar la solicitud';
-      logger.error(`[${'cargarPagina'.padEnd(HEAD_LEN, ' ')}]  -->  ${msg}`);
+      logger.error(`getPageHTML  -->  ${msg}`);
 
       const customError: CustomError = {
          statusCode: (error as any).statusCode || 500,
@@ -246,18 +184,144 @@ async function cargarPagina(url: string): Promise<CheerioAPI> {
 }
 
 /**
+ * Obtiene una lista de películas según una solicitud de búsqueda.
+ *
+ * @param {string} url              - La URL de la página web que contiene los resultados de la búsqueda.
+ * @param {SearchRequest} search    - La solicitud de búsqueda que contiene información sobre el idioma y otros detalles.
+ * @returns {Promise<SearchResponse[] | CustomError>} Una promesa que resuelve en un arreglo de resultados de búsqueda o un objeto de error personalizado.
+ */
+async function getSearchedFilms(url: string, search: SearchRequest): Promise<SearchResponse[] | CustomError> {
+   logger.info(`getSearchedFilms  -->  url: ${search}`);
+
+   try {
+      const $ = await getPageHTML(url);
+
+      const result: SearchResponse[] = [];
+      if (checkTitleForBusqueda($)) {
+         logger.debug(`getSearchedFilms  -->  IsSearch ${url}`);
+
+         $('.se-it.mt').each(function () {
+            const anyo_encontrado = parseInt($(this).find('.ye-w').text(), 10);
+            const anyo_buscado = search.year ?? 0;
+
+            // anyo_buscado > 0 significa que queremos encontrar la película de ese año
+            // por tanto, en ese caso, no queremos las que anyo_encontrado !== anyo_encontrado
+            if (anyo_buscado > 0 && anyo_buscado != anyo_encontrado) {
+               return;
+            }
+            const enlace = $(this).find('.mc-title a').attr('href');
+
+            // Si enlace NO hay un enlace válido, no se ha ejecutado correctamente la búsqueda
+            if (enlace === undefined) {
+               return;
+            }
+            const id = enlace.match(/film(\d+)\.html/)![1];
+
+            result.push({
+               id: parseInt(id, 10),
+               titulo: $(this).find('.mc-title a').text().trim(),
+               anyo: anyo_encontrado,
+               link: enlace,
+            });
+         });
+      } else {
+         logger.debug(`getSearchedFilms  -->  IsFilm ${url}`);
+
+         const enlace = $('meta[property="og:url"]').attr('content') || '';
+         const matchResult = enlace.match(/film(\d+)\.html/);
+
+         if (matchResult === null) {
+            const msg = 'Film not found';
+            logger.error(`getSearchedFilms  -->  ${msg}`);
+
+            const customError: CustomError = {
+               statusCode: 404,
+               message: msg,
+            };
+
+            return customError;
+         }
+
+         result.push({
+            id: parseInt(matchResult[1], 10),
+            titulo: $('h1#main-title span[itemprop="name"]').text().trim(),
+            anyo: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
+            link: enlace,
+         });
+      }
+
+      if (result.length === 0) {
+         // Si result está vacío, retornar un error personalizado
+         const msg = `Sin coincidencias ${JSON.stringify(search)}`;
+         logger.error(`getSearchedFilms  -->  ${msg}`);
+
+         const customError: CustomError = {
+            statusCode: 404,
+            message: msg,
+         };
+
+         return customError;
+      }
+
+      return result;
+   } catch (error) {
+      const msg = (error as any).message;
+      logger.error(`getSearchedFilms  -->  ${msg}`);
+
+      const customError: CustomError = {
+         statusCode: (error as any).statusCode,
+         message: msg,
+         body: (error as any).response ? (error as any).response.body : undefined,
+      };
+
+      throw customError;
+   }
+}
+
+/**
+ * Extrae datos de una página web utilizando Cheerio.
+ *
+ * @param {CheerioAPI} cheerio      - La instancia de Cheerio que representa la página web.
+ * @param {boolean} inSpanish       - Indica si se debe buscar en español o en inglés.
+ * @param {string} esValue          - El valor en español para buscar en la página.
+ * @param {string} enValue          - El valor en inglés para buscar en la página.
+ * @param {string} toSearch         - El selector CSS para buscar los elementos deseados.
+ * @returns {string} Una cadena que contiene los datos extraídos separados por '|' o una cadena vacía si no se encuentran datos.
+ */
+function arrayToTextFromCheerioAPI(
+   cheerio: CheerioAPI,
+   inSpanish: boolean,
+   esValue: string,
+   enValue: string,
+   toSearch: string,
+) {
+   const parse = `dt:contains("${inSpanish ? esValue : enValue}")`;
+
+   logger.debug(`arrayToTextFromCheerioAPI  -->  ${parse}`);
+
+   return cheerio(`${parse}`)
+      .next()
+      .find(toSearch)
+      .map(function () {
+         return cheerio(this).text().trim() || '';
+      })
+      .get()
+      .join(' | ');
+}
+
+/**
  * Obtiene texto de un objeto Cheerio considerando el idioma y el valor de contexto proporcionados.
  *
  * @param {CheerioAPI} cheerio      - Un objeto Cheerio que representa el contenido de la página web.
- * @param {string} lang             - El idioma en el que se debe buscar el texto (solo permitido, 'es' o 'en').
+ * @param {boolean} inSpanish       - Indica si la búsqueda es en castellano o en inglés.
  * @param {string} esValue          - El valor del contexto en español.
  * @param {string} enValue          - El valor del contexto en inglés.
  * @returns {string}                - El texto obtenido del objeto Cheerio, con saltos de línea eliminados y espacios extra recortados.
  */
-function getTextFromCheerioAPI(cheerio: CheerioAPI, lang: string, esValue: string, enValue: string): string {
-   const contextoActual = lang === 'es' ? esValue : enValue;
-   const parse = `dt:contains("${contextoActual}")`;
+function getTextFromCheerioAPI(cheerio: CheerioAPI, inSpanish: boolean, esValue: string, enValue: string): string {
+   const parse = `dt:contains("${inSpanish ? esValue : enValue}")`;
 
-   logger.debug(`[${'getTextFromCheerioAPI'.padEnd(HEAD_LEN, ' ')}]  -->  ${parse}`);
+   logger.debug(`getTextFromCheerioAPI  -->  ${parse}`);
+
    return cheerio(`${parse}`).next().text().replace(/\n/g, ' ').trim();
 }
