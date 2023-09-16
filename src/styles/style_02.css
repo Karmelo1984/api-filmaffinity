@@ -1,0 +1,108 @@
+/* Tamaño base de fuente */
+:root {
+   --base-font-size: 16px; /* Tamaño base */
+   --base-margin-left: 20px;
+}
+
+/* Estilo para el cuerpo de la página (fondo de pantalla) */
+body {
+   background-color: #f5f5f5;
+   margin: calc(var(--base-font-size) * 1) auto;
+   padding: 20px;
+   font-family: Arial, sans-serif;
+   color: #333;
+}
+
+/* Estilo para el título principal */
+h1 {
+   font-size: calc(var(--base-font-size) * 1.8);
+   font-weight: bold;
+   color: #333;
+   margin-bottom: 20px;
+   margin-left: calc(var(--base-margin-left) * 1);
+   text-transform: uppercase;
+}
+
+/* Estilos para h2 */
+h2 {
+   font-size: calc(var(--base-font-size) * 1.6);
+   font-weight: bold;
+   margin-top: 40px;
+   margin-bottom: 15px;
+   margin-left: calc(var(--base-margin-left) * 2);
+   color: #444;
+   text-transform: uppercase;
+}
+
+/* Estilos para h3 */
+h3 {
+   font-size: calc(var(--base-font-size) * 1.4);
+   font-weight: bold;
+   margin-top: 30px;
+   margin-bottom: 15px;
+   margin-left: calc(var(--base-margin-left) * 3);
+   color: #555;
+   text-transform: uppercase;
+}
+
+/* Estilos para h4 */
+h4 {
+   font-size: calc(var(--base-font-size) * 1.2);
+   font-weight: bold;
+   margin-top: 30px;
+   margin-bottom: 15px;
+   margin-left: calc(var(--base-margin-left) * 4);
+   color: #666;
+   text-transform: uppercase;
+}
+
+/* Estilo para los párrafos */
+p {
+   font-size: calc(var(--base-font-size) * 1);
+   margin-bottom: 15px;
+   margin-left: calc(var(--base-margin-left) * 4);
+   line-height: 1;
+}
+
+/* Estilo para la lista no ordenada */
+ul {
+   list-style-type: disc;
+   margin-left: calc(var(--base-margin-left) * 2);
+   padding: 0;
+}
+
+/* Estilo para los elementos de la lista no ordenada */
+li {
+   font-size: calc(var(--base-font-size) * 0.8);
+   margin-bottom: 10px;
+   margin-left: calc(var(--base-margin-left) * 2);
+   color: #666;
+}
+
+/* Estilo para los enlaces */
+a {
+   text-decoration: underline;
+   color: #0070c9;
+}
+
+/* Estilo para el código JSON */
+pre {
+   font-size: calc(var(--base-font-size) * 0.6);
+   background-color: #1b1b1b;
+   padding: 10px;
+   margin: 10px 0;
+   margin-left: calc(var(--base-margin-left) * 5);
+   margin-right: calc(var(--base-margin-left) * 5);
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   font-size: calc(var(--base-font-size) * 0.8);
+   white-space: pre-wrap;
+   overflow-x: hidden;
+   color: #0070c9;
+}
+
+/* Estilo para el código JSON dentro del pre */
+code.language-json {
+   display: block;
+   color: #0070c9;
+}
