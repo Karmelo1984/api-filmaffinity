@@ -8,7 +8,8 @@ export const app = express();
 app.use(cors());
 
 // Habilita el uso de JSON en la aplicación para procesar datos en formato JSON en las solicitudes y respuestas.
-app.use(express.json());
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 // Importa las rutas del servidor
 import { router as root } from './routes/routes.root';
