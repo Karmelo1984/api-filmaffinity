@@ -3,7 +3,7 @@ import request from 'request-promise';
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
 
-import { CustomError } from '../types/CustomError';
+import { CustomError, handleError, createError } from '../types/CustomError';
 import { SearchResponse } from '../types/Response/SearchResponse';
 import { FilmResponse } from '../types/Response/FilmResponse';
 
@@ -15,7 +15,6 @@ import { SearchRequest } from '../types/Request/SearchRequest';
  *
  * @param {SearchRequest} search    - La solicitud de búsqueda que incluye el idioma y la consulta de búsqueda.
  * @returns {Promise<SearchResponse[] | CustomError>} - Una promesa que resuelve en una lista de resultados de búsqueda o un error personalizado.
- * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la búsqueda.
  */
 export async function getSearch(search: SearchRequest): Promise<SearchResponse[] | CustomError> {
    logger.info(`getSearch  -->  search: ${JSON.stringify(search)}`);
@@ -25,16 +24,12 @@ export async function getSearch(search: SearchRequest): Promise<SearchResponse[]
    )}`;
 
    try {
-      logger.debug(`getSearch  -->  search: ${JSON.stringify(search)}`);
+      logger.debug(`getSearch  -->  url: ${url}`);
       const result = await getSearchedFilms(url, search);
 
       return result;
    } catch (error) {
-      logger.error(`getSearch  -->  search: ${JSON.stringify(search)}`);
-      return {
-         statusCode: (error as any).statusCode,
-         message: (error as any).body,
-      };
+      return handleError(logger, 'getSearch', error);
    }
 }
 
@@ -43,23 +38,16 @@ export async function getSearch(search: SearchRequest): Promise<SearchResponse[]
  *
  * @param {FilmRequest} film        - La solicitud de información de la película que incluye el idioma y el ID de la película.
  * @returns {Promise<FilmResponse | CustomError>} - Una promesa que resuelve en la información detallada de la película o un error personalizado.
- * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la obtención de información de la película.
  */
 export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | CustomError> {
    logger.info(`getInfoFilm  -->  film: ${JSON.stringify(film)}`);
 
    const url = film.url ? film.url : `https://www.filmaffinity.com/${film.lang}/film${film.id}.html`;
 
-   console.log(url);
    try {
-      logger.debug(`getInfoFilm  -->  search: ${JSON.stringify(film)}`);
       return await getFilmInfoFromUrl(film.lang, url);
    } catch (error) {
-      logger.error(`getInfoFilm  -->  search: ${JSON.stringify(film)}`);
-      return {
-         statusCode: (error as any).statusCode,
-         message: (error as any).body,
-      };
+      return handleError(logger, 'getInfoFilm', error, url);
    }
 }
 
@@ -70,11 +58,12 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
  * @param {string} lang - El idioma en el que se debe buscar la información (solo se permite, 'es' o 'en').
  * @returns {FilmResponse | CustomError} - Un objeto FilmResponse con la información de la película si la búsqueda tiene éxito,
  * o un objeto CustomError si ocurre un error durante la búsqueda.
- * @throws {CustomError} - Lanza un error personalizado si la búsqueda falla debido a un error en la solicitud o procesamiento de datos.
  */
 async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmResponse | CustomError> {
-   logger.debug(`getFilmInfoFromUrl  -->  url: ${url}`);
+   logger.info(`getFilmInfoFromUrl  -->  url: ${url}`);
+
    const inSpanish = lang === 'es';
+
    try {
       const $ = await getPageHTML(url);
 
@@ -117,17 +106,12 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
 
       return result;
    } catch (error) {
-      logger.error(`getFilmInfoFromUrl  -->  ${(error as any).body.padEnd(40, '')}`);
-
-      return {
-         statusCode: (error as any).statusCode,
-         message: (error as any).body,
-      };
+      return handleError(logger, 'getFilmInfoFromUrl', error);
    }
 }
 
 /**
- * Verifica si la página web analizada es una página de búsqueda en 'FilmAffinity'.
+ * Comprueba si es una película o el portal de búsqueda de 'FilmAffinity'.
  *
  * @param {CheerioAPI} $   - Un objeto Cheerio que representa la página web.
  * @returns {boolean}      - `true` si el elemento es una busqueda, o false si es una película.
@@ -141,14 +125,11 @@ function checkTitleForBusqueda($: CheerioAPI): boolean {
 
       // Verifica si el título comienza con "Búsqueda de"
       const isSearch = pageTitle.startsWith('Búsqueda de "') || pageTitle.startsWith('Search for "');
-      logger.debug(`checkTitleForBusqueda  -->  isOneFilm: ${!isSearch}`);
 
+      logger.debug(`checkTitleForBusqueda  -->  ${isSearch ? 'Se trata de una búsqueda' : 'Se trata de una película'}`);
       return isSearch;
    } catch (error) {
-      const msg = 'Error al verificar el título de la página';
-
-      logger.error(`checkTitleForBusqueda  -->  ${msg}`);
-      throw new Error(`${msg}`);
+      throw handleError(logger, 'checkTitleForBusqueda', error);
    }
 }
 
@@ -170,16 +151,7 @@ async function getPageHTML(url: string): Promise<CheerioAPI> {
 
       return cheerio.load(body);
    } catch (error) {
-      const msg = (error as any).message || 'Error al realizar la solicitud';
-      logger.error(`getPageHTML  -->  ${msg}`);
-
-      const customError: CustomError = {
-         statusCode: (error as any).statusCode || 500,
-         message: msg,
-         body: (error as any).response ? (error as any).response.body : undefined,
-      };
-
-      throw customError;
+      throw handleError(logger, 'getPageHTML', error);
    }
 }
 
@@ -191,14 +163,14 @@ async function getPageHTML(url: string): Promise<CheerioAPI> {
  * @returns {Promise<SearchResponse[] | CustomError>} Una promesa que resuelve en un arreglo de resultados de búsqueda o un objeto de error personalizado.
  */
 async function getSearchedFilms(url: string, search: SearchRequest): Promise<SearchResponse[] | CustomError> {
-   logger.info(`getSearchedFilms  -->  url: ${search}`);
+   logger.info(`getSearchedFilms  -->  url: ${JSON.stringify(search)}`);
 
    try {
       const $ = await getPageHTML(url);
 
       const result: SearchResponse[] = [];
       if (checkTitleForBusqueda($)) {
-         logger.debug(`getSearchedFilms  -->  IsSearch ${url}`);
+         logger.debug(`getSearchedFilms  -->  Extrayendo datos de la búsqueda: ${url}`);
 
          $('.se-it.mt').each(function () {
             const anyo_encontrado = parseInt($(this).find('.ye-w').text(), 10);
@@ -225,21 +197,13 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             });
          });
       } else {
-         logger.debug(`getSearchedFilms  -->  IsFilm ${url}`);
+         logger.debug(`getSearchedFilms  -->  Extrayendo datos de la película: ${url}`);
 
          const enlace = $('meta[property="og:url"]').attr('content') || '';
          const matchResult = enlace.match(/film(\d+)\.html/);
 
          if (matchResult === null) {
-            const msg = 'Film not found';
-            logger.error(`getSearchedFilms  -->  ${msg}`);
-
-            const customError: CustomError = {
-               statusCode: 404,
-               message: msg,
-            };
-
-            return customError;
+            return createError(logger, 'getSearchedFilms', 'Sin coincidencias con estos parámetros', 404, url);
          }
 
          result.push({
@@ -250,31 +214,9 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
          });
       }
 
-      if (result.length === 0) {
-         // Si result está vacío, retornar un error personalizado
-         const msg = `Sin coincidencias ${JSON.stringify(search)}`;
-         logger.error(`getSearchedFilms  -->  ${msg}`);
-
-         const customError: CustomError = {
-            statusCode: 404,
-            message: msg,
-         };
-
-         return customError;
-      }
-
       return result;
    } catch (error) {
-      const msg = (error as any).message;
-      logger.error(`getSearchedFilms  -->  ${msg}`);
-
-      const customError: CustomError = {
-         statusCode: (error as any).statusCode,
-         message: msg,
-         body: (error as any).response ? (error as any).response.body : undefined,
-      };
-
-      throw customError;
+      throw handleError(logger, 'getSearchedFilms', error);
    }
 }
 

@@ -5,6 +5,7 @@ import { processRequest } from '../../../middleware/processRequest';
 
 import { FilmRequest } from '../../../types/Request/FilmRequest';
 import { getInfoFilm } from '../../../utils/webScrapper';
+import { hasOnlyValidParams } from '../../utils';
 
 export { router };
 
@@ -22,23 +23,60 @@ const router = express.Router();
  * @param {Response} res      - Respuesta HTTP.
  */
 router.get('/', processRequest, async (req: Request, res: Response) => {
+   const functionName = `router.get /api/film`;
    const payload = res.locals.processedData;
-   logger.info(`router.get /api/film  -->  payload: ${JSON.stringify(payload)}`);
+   const properties = ['lang', 'id', 'url'];
+   const { method, ...params } = payload;
+
+   logger.info(`${functionName}  -->  RECIVED: ${JSON.stringify(payload)}`);
+
+   if (!hasOnlyValidParams(params, properties)) {
+      const msg = `Solo están permitidos los parámetros (${properties}) y has insertado los parámetros (${Object.keys(
+         params.query,
+      )})`;
+      const status = 400;
+      logger.error(`${functionName}  -->  ${msg}`);
+
+      return res.status(status).json({
+         statusCode: status,
+         error: 'Parámetros incorrectos',
+         message: `${msg}`,
+      });
+   }
 
    const values: FilmRequest = {
       lang: payload.query.lang,
       id: payload.query.id,
       url: payload.body.url,
    };
+
    const result = await getInfoFilm(values);
-   logger.info(`router.get /api/search  -->  result: ${JSON.stringify(result)}`);
+   logger.info(`${functionName}  -->  SEND: ${JSON.stringify(payload)}`);
 
    return res.send(result);
 });
 
 router.post('/', processRequest, async (req: Request, res: Response) => {
+   const functionName = `router.post /api/film`;
    const payload = res.locals.processedData;
-   logger.info(`router.post /api/film  -->  payload: ${JSON.stringify(payload)}`);
+   const properties = ['url'];
+   const { method, ...params } = payload;
+
+   logger.info(`${functionName}  -->  RECIVED: ${JSON.stringify(payload)}`);
+
+   if (!hasOnlyValidParams(params, properties)) {
+      const msg = `Solo están permitidos los parámetros (${properties}) y has insertado los parámetros (${Object.keys(
+         params.body,
+      )})`;
+      const status = 400;
+      logger.error(`${functionName}  -->  ${msg}`);
+
+      return res.status(status).json({
+         statusCode: status,
+         error: 'Parámetros incorrectos',
+         message: `${msg}`,
+      });
+   }
 
    const url: string = payload.body.url ?? '';
    const regex = /https:\/\/www.filmaffinity\.com\/(?<lang>\w+)\/film(?<id>\d+)\.html/;
@@ -51,7 +89,7 @@ router.post('/', processRequest, async (req: Request, res: Response) => {
    };
 
    const result = await getInfoFilm(values);
-   logger.info(`router.post /api/search  -->  result: ${JSON.stringify(result)}`);
+   logger.info(`${functionName}  -->  SEND: ${JSON.stringify(payload)}`);
 
    return res.send(result);
 });

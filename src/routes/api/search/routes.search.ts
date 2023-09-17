@@ -5,9 +5,9 @@ import { processRequest } from '../../../middleware/processRequest';
 
 import { SearchRequest, validateSearchRequest } from '../../../types/Request/SearchRequest';
 import { getSearch } from '../../../utils/webScrapper';
+import { hasOnlyValidParams } from '../../utils';
 
 export { router };
-
 const router = express.Router();
 
 /**
@@ -23,8 +23,26 @@ const router = express.Router();
  * @param {Response} res - Respuesta HTTP.
  */
 router.get('/', processRequest, async (req: Request, res: Response) => {
+   const functionName = `router.get /api/search`;
    const payload = res.locals.processedData;
-   logger.info(`router.get /api/search  -->  payload: ${JSON.stringify(payload)}`);
+   const properties = ['lang', 'query', 'year'];
+   const { method, ...params } = payload;
+
+   logger.info(`${functionName}  -->  RECIVED: ${JSON.stringify(payload)}`);
+
+   if (!hasOnlyValidParams(params, properties)) {
+      const msg = `Solo están permitidos los parámetros (${properties}) y has insertado los parámetros (${Object.keys(
+         params.query,
+      )})`;
+      const status = 400;
+      logger.error(`${functionName}  -->  ${msg}`);
+
+      return res.status(status).json({
+         statusCode: status,
+         error: 'Parámetros incorrectos',
+         message: `${msg}`,
+      });
+   }
 
    const values: SearchRequest = {
       lang: payload.query.lang,
@@ -38,8 +56,9 @@ router.get('/', processRequest, async (req: Request, res: Response) => {
       logger.error(`${validationResult.message}  -->  ${JSON.stringify(payload)}`);
       return res.status(validationResult.statusCode).json({ error: validationResult.message });
    }
+
    const result = await getSearch(values);
-   logger.info(`router.get /api/search  -->  result: ${JSON.stringify(result)}`);
+   logger.info(`${functionName}  -->  SEND: ${JSON.stringify(payload)}`);
 
    return res.send(result);
 });

@@ -3,7 +3,7 @@
  */
 import request from 'supertest';
 import express, { Request, Response } from 'express';
-import { router } from '../../src/routes/root';
+import { router } from '../../src/routes/routes.root';
 
 // Crear una instancia de Express para las pruebas
 const app = express();

@@ -1,7 +1,14 @@
 import markdownIt from 'markdown-it';
 import logger from '../logger';
-import { CustomError } from '../types/CustomError';
+import { CustomError, handleError } from '../types/CustomError';
 
+/**
+ * Convierte un documento en formato Markdown a HTML.
+ *
+ * @param {string} data          - El contenido en formato Markdown a convertir a HTML.
+ * @param {string} styleCss      - El CSS personalizado para aplicar al documento HTML.
+ * @returns {string|CustomError} - El documento HTML resultante o un objeto CustomError si se produce un error.
+ */
 export function sendReadmeAsHtml(data: string, styleCss: string): string | CustomError {
    logger.info(`sendReadmeAsHtml  -->  `);
 
@@ -16,7 +23,7 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>API Filmaffinity</title>
+                <title>API Filmaffinity ${process.env.VERSION}</title>
                 <style>
                     ${styleCss}
                 </style>
@@ -29,15 +36,8 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
       logger.debug(`sendReadmeAsHtml  -->  html: ${htmlContent}`);
 
       return html;
-   } catch (err) {
-      const msg = (err as any).body;
-      logger.error(`sendReadmeAsHtml  -->  ${msg}`);
-
-      const customError: CustomError = {
-         statusCode: 404,
-         message: msg,
-      };
-      return customError;
+   } catch (error) {
+      return handleError(logger, 'sendReadmeAsHtml', error);
    }
 }
 

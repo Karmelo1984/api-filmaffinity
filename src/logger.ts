@@ -56,14 +56,20 @@ const logger = createLogger({
          format: customFormat,
          datePattern: 'YYYY-MM-DD',
          zippedArchive: true,
-         maxSize: '750m',
+         maxSize: '250m',
          maxFiles: '14d',
          createSymlink: false,
       }),
    ],
 });
 
-logger.info('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
+logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
 export default logger;
 
 /**

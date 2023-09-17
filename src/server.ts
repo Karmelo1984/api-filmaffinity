@@ -1,13 +1,10 @@
 import express from 'express';
-import cors from 'cors';
-
-// Crea una instancia de la aplicación 'express'
 export const app = express();
 
-// Habilita el uso de 'CORS' en la aplicación
+import cors from 'cors';
+
 app.use(cors());
 
-// Habilita el uso de JSON en la aplicación para procesar datos en formato JSON en las solicitudes y respuestas.
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 

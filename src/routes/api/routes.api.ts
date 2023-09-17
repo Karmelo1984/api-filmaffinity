@@ -6,12 +6,11 @@ import { sendReadmeAsHtml } from '../../utils/generateHTML';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export { router };
+const router = express.Router();
+
 const apiMD = path.join(__dirname, '../../docs/api.md');
 const cssFilePath = path.join(__dirname, '../../styles/style_03.css');
-
-export { router };
-
-const router = express.Router();
 
 /**
  * Maneja una solicitud HTTP GET en la ruta ('/api') y responde con un contenido HTML generado a partir de archivos.
