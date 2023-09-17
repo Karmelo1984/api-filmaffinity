@@ -11,12 +11,11 @@ import logger from './src/logger';
  * @returns {Promise<void>} Una promesa que se resuelve cuando el servidor se inicia correctamente.
  */
 export async function main(): Promise<void> {
-   const PORT = process.env.PORT || 3000;
-   const URL_DEV = process.env.URL_DEV || 'http://localhost';
-   const URL_PROD = process.env.URL_PROD || `${URL_DEV}:${PORT}`;
+   const PORT = process.env.PORT;
+   const URL = process.env.URL;
 
    app.listen(PORT, () => {
-      const url: string = process.env.NODE_ENV === 'development' ? `${URL_DEV}:${PORT}` : URL_PROD;
+      const url: string = `${URL}:${PORT}`;
 
       logger.info(`✅ El servidor se está ejecutando en: ${url}`);
    });

@@ -1,5 +1,5 @@
 import logger from '../logger';
-import request = require('request-promise');
+import request from 'request-promise';
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
 

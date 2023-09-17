@@ -6,7 +6,7 @@ import { sendReadmeAsHtml } from '../../utils/generateHTML';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const apiMD = path.join(__dirname, '../../../docs/api.md');
+const apiMD = path.join(__dirname, '../../docs/api.md');
 const cssFilePath = path.join(__dirname, '../../styles/style_03.css');
 
 export { router };

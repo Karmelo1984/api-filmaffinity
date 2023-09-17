@@ -6,7 +6,7 @@ import { sendReadmeAsHtml, mergeMarkdownFiles } from '../utils/generateHTML';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const releaseNotesMD = path.join(__dirname, '../../docs/release-notes.md');
+const releaseNotesMD = path.join(__dirname, '../docs/release-notes.md');
 const readmeMD = path.join(__dirname, '../../README.md');
 const cssFilePath = path.join(__dirname, '../styles/style_03.css');
 

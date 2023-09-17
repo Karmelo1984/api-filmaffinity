@@ -57,3 +57,6 @@ yarn.lock
 
 # dotenv environment variables file
 .env
+
+# Ficheros transpilados
+dist
