@@ -3,7 +3,6 @@
 !/styles
 !/src
 !/index.ts
-!/.env
 !/README.md
 !/package.json
 !/tsconfig.json

@@ -48,13 +48,13 @@ Crea la imagen a partir del proyecto, salvo los warning, debería de generar la 
 950MB).
 
 ```bash
-    $ docker build -t api_filmaffinity:${etiqueta} .
+    $ docker build -t filmaffinity:${etiqueta} .
 ```
 
 O descarga la imagen:
 
 ```bash
-    $ docker pull api_filmaffinity:${etiqueta}
+    $ docker pull filmaffinity:${etiqueta}
 ```
 
 Una vez terminada la generación de la imagen, o terminada la descarga, verifica que está disponible en tu sistema con:
@@ -67,9 +67,10 @@ Tened en en cuenta la redirección de puertos:
 
 -  ${port_host} : es donde estará escuchando nuestro pc (los ejemplos de esta guía están con el puerto 3000).
 -  ${port_contenedor} : es donde escucha el contenedor (por defecto está configurado en el dockerfile en el puerto 3000)
+-  Para no perder los logs en cada ejecución, se recomienda crear un volumen
 
 ```bash
-    $ docker run -p ${port_host}:${port_contenedor} --name ${nombre_del_contenedor} ${nombre_o_id_de_la_imagen}
+    $ docker run --name ${nombre_contenedor} -p ${port_host}:${port_contenedor} --env-file ./.env -v ${dir_log_local}:/usr/src/app/logs ${nombre_o_id_de_la_imagen}
 ```
 
 Llegado a este punto, tan solo tienes que poner en tu navegador la dirección siguiente para comprobar que está
@@ -95,7 +96,7 @@ Para volver a ejecutarlo en primer plano (si lo quieres ejecutar en segundo plan
 
 ### Búsqueda de películas por título
 
-Busca todas las películas cuyo título se adapta al patrón indicado.
+Busca todas las películas cuyo título se adapta al patrón indicado. Acepta un patrón opcional 'year'
 
 -  Método: GET
 -  URL: `http://localhost:3000/api/search?lang=${'es'|'en'}&query=${patrón a buscar}`

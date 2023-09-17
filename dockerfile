@@ -33,11 +33,13 @@ RUN yarn run build
 
 FROM base AS production
 
+# NVariable de entorno con el nombre de un usuario predefinido de Alpine
+#ENV USER node
+
 # Copiamos solo los ficheros necesarios entre "imagenes"
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=build $DIR/node_modules $DIR/node_modules
 COPY --from=build $DIR/dist $DIR/dist
-
 
 # Iniciamos una variable de entorno que indica que estamos en produccion
 ENV NODE_ENV=production
@@ -45,5 +47,16 @@ ENV NODE_ENV=production
 # Expone el puerto en el que tu aplicación se ejecutará
 EXPOSE 3000
 
+# Por temas de seguridad creamos nuevo usuario (con menos privilegios)
+#USER $USER
+
 # Comando para ejecutar tu aplicación
 CMD ["dumb-init", "node", "dist/index.js"]
+
+
+
+# Construir la imagen Docker con una etiqueta específica (filmaffinity:v2.0.0)
+# docker build -t filmaffinity:v2.0.0 .
+
+# Ejecutar el contenedor con el nombre 'filmaffinity' en modo daemon (-d) y mapear el puerto
+# docker run --name filmaffinity -d -p 3000:3000 --env-file ./.env -v /var/log/contenedores_docker/api_filmaffinity:/usr/src/app/logs filmaffinity:v2.0.0 
