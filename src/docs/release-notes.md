@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Versión 2.0.0] - Fecha de Lanzamiento (YYYY-MM-DD)
+## [Versión 2.0.0] - Fecha de Lanzamiento (2023-Sept-10)
 
 ### Características Generales
 

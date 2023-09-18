@@ -2,13 +2,15 @@
 
 API REST no oficial de Filmaffinity en castellano. Desarrollada desde cero con NodeJS y Typescript.
 
+Puedes encontrar el codigo fuente en [Github](https://github.com/Karmelo1984/api-filmaffinity)
+
 ## Introducción
 
 Esta es una API REST que utiliza WEB SCRAPING tanto para hacer búsquedas como para extraer información de películas y
 series de [Filmaffinity](https://www.filmaffinity.com/es/main.html).
 
 Está preparada tanto para la ejecución en local, como para crear una imagen en docker.
-[Ver en docker hub](https://hub.docker.com/repository/docker/karmelo1984/filmaffinity/general)
+[Ver en docker hub](https://hub.docker.com/repository/docker/karmelo1984/filmaffinity/general).
 
 ### Ejecución en local
 
