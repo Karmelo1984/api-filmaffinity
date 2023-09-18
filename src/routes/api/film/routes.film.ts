@@ -5,7 +5,7 @@ import { processRequest } from '../../../middleware/processRequest';
 
 import { FilmRequest } from '../../../types/Request/FilmRequest';
 import { getInfoFilm } from '../../../utils/webScrapper';
-import { hasOnlyValidParams } from '../../utils';
+import { hasOnlyValidParams, extractSecondLevelElements } from '../../utils';
 
 export { router };
 
@@ -30,10 +30,10 @@ router.get('/', processRequest, async (req: Request, res: Response) => {
 
    logger.info(`${functionName}  -->  RECIVED: ${JSON.stringify(payload)}`);
 
-   if (!hasOnlyValidParams(params, properties)) {
-      const msg = `Solo están permitidos los parámetros (${properties}) y has insertado los parámetros (${Object.keys(
-         params.query,
-      )})`;
+   const parametros = extractSecondLevelElements(params);
+
+   if (!hasOnlyValidParams(parametros, properties)) {
+      const msg = `Se permiten estos parámetros [${properties}]. Has insertado estos [${parametros}]`;
       const status = 400;
       logger.error(`${functionName}  -->  ${msg}`);
 

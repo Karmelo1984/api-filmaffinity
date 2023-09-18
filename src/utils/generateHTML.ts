@@ -10,7 +10,8 @@ import { CustomError, handleError } from '../types/CustomError';
  * @returns {string|CustomError} - El documento HTML resultante o un objeto CustomError si se produce un error.
  */
 export function sendReadmeAsHtml(data: string, styleCss: string): string | CustomError {
-   logger.info(`sendReadmeAsHtml  -->  `);
+   const functionName = `sendReadmeAsHtml`;
+   logger.info(`${functionName}  -->  INICIO de la función`);
 
    try {
       // Convierte el Markdown en HTML
@@ -33,7 +34,7 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
             </body>
             </html>
         `;
-      logger.debug(`sendReadmeAsHtml  -->  html: ${htmlContent}`);
+      logger.debug(`${functionName}  -->  FIN de la función: ${htmlContent}`);
 
       return html;
    } catch (error) {
@@ -53,13 +54,18 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
  * original si ocurre un error.
  */
 export function mergeMarkdownFiles(originalContent: string, newContent: string, referencePhrase: string): string {
-   logger.info(`mergeMarkdownFiles  -->  `);
+   const functionName = `mergeMarkdownFiles`;
+   logger.info(`${functionName}  -->  INICIO de la función`);
 
    try {
       const modOriginalContent = removeContentFromString(originalContent, referencePhrase);
-      return appendFileToFile(modOriginalContent, newContent);
+      const text = appendFileToFile(modOriginalContent, newContent);
+
+      logger.debug(`${functionName}  -->  FIN de la función: ${text}`);
+
+      return text;
    } catch (error) {
-      logger.error(`mergeMarkdownFiles  -->  SIN MODIFICAR: ${error}`);
+      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
 
       return originalContent;
    }
@@ -74,15 +80,18 @@ export function mergeMarkdownFiles(originalContent: string, newContent: string, 
  * original si ocurre un error.
  */
 function removeContentFromString(content: string, referencePhrase: string): string {
-   logger.info(`removeContentFromString  -->  `);
+   const functionName = `removeContentFromString`;
+   logger.info(`${functionName}  -->  INICIO de la función`);
 
    try {
       const referenceIndex = content.indexOf(referencePhrase);
       const contentBeforeReference = content.substring(0, referenceIndex);
 
+      logger.debug(`${functionName}  -->  FIN de la función: ${contentBeforeReference}`);
+
       return contentBeforeReference;
    } catch (error) {
-      logger.error(`removeContentFromString  -->  SIN MODIFICAR: ${error}`);
+      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
 
       return content;
    }
@@ -97,12 +106,17 @@ function removeContentFromString(content: string, referencePhrase: string): stri
  * original si ocurre un error.
  */
 function appendFileToFile(sourceContent: string, destinationContent: string): string {
-   logger.info(`appendFileToFile  -->  `);
+   const functionName = `appendFileToFile`;
+   logger.info(`${functionName}  -->  INICIO de la función`);
 
    try {
-      return (sourceContent += destinationContent);
+      const text = (sourceContent += destinationContent);
+
+      logger.debug(`${functionName}  -->  FIN de la función: ${text}`);
+
+      return text;
    } catch (error) {
-      logger.error(`appendFileToFile  -->  SIN MODIFICAR: ${error}`);
+      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
 
       return sourceContent;
    }

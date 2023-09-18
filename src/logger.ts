@@ -19,13 +19,15 @@ const customFormat = winston.format.printf(({ timestamp, level, message }) => {
    const formattedTimestamp = formatter.format(dateObj) + `.${dateObj.getMilliseconds().toString().padStart(3, '0')}`;
 
    const [cabecera, cuerpo] = dividirString(message, '  -->  ');
-   level = centrarTexto(level, 16);
+
+   level = centrarTexto(level, 16).replace(/\s+/g, ' ');
+
    message =
       cabecera.length == 0
          ? cuerpo
          : `[${centrarTexto(cabecera, HEAD_LEN)}]  -->  ${cuerpo.replace(/\s+/g, ' ').trim().slice(0, 150)}`;
 
-   return `[${formattedTimestamp}] [${level}]  ${message}`;
+   return formatLogEntry(formattedTimestamp, level, message);
 });
 
 // Configura el registro de Winston
@@ -113,4 +115,19 @@ function centrarTexto(texto: string, maxLen: number, relleno: string = ' '): str
    const textoCentrado = texto.padStart(texto.length + espacioIzquierda, relleno).padEnd(maxLen, relleno);
 
    return textoCentrado;
+}
+
+/**
+ * Formatea una entrada de registro con un formato específico.
+ *
+ * @param {string} timestamp     - El timestamp de la entrada de registro.
+ * @param {string} level         - El nivel de registro (por ejemplo, "info", "error").
+ * @param {string} message       - El mensaje de la entrada de registro.
+ * @returns {string} La entrada de registro formateada con el formato que tendrá el log.
+ */
+function formatLogEntry(timestamp: string, level: string, message: string): string {
+   const formattedTimestamp = timestamp.padEnd(26, ' ');
+   const formattedLevel = level.padEnd(7, ' ');
+
+   return `[${formattedTimestamp}] [${formattedLevel}] ${message}`;
 }
