@@ -2,6 +2,8 @@
 
 API REST no oficial de Filmaffinity en castellano. Desarrollada desde cero con NodeJS y Typescript.
 
+Puedes encontrar el codigo fuente en [Github](https://github.com/Karmelo1984/api-filmaffinity)
+
 ## Introducción
 
 Esta es una API REST que utiliza WEB SCRAPING tanto para hacer búsquedas como para extraer información de películas y
