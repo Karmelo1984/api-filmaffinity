@@ -66,7 +66,9 @@ Tened en en cuenta la redirección de puertos:
 -  Para no perder los logs en cada ejecución, se recomienda crear un volumen
 
 ```bash
-    $ docker run --name ${nombre_contenedor} -p ${port_host}:${port_contenedor} --env-file ./.env -v ${dir_log_local}:/usr/src/app/logs ${nombre_o_id_de_la_imagen}
+    $ docker run --name ${nombre_contenedor} -p ${port_host}:${port_contenedor} -e PORT=${port_contenedor} -e LOG_NAME=${nombre_de_los_logs}
+  -v ${dir_log_local}:/usr/src/app/logs ${nombre_o_id_de_la_imagen}
+
 ```
 
 Llegado a este punto, tan solo tienes que poner en tu navegador la dirección siguiente para comprobar que está
