@@ -78,7 +78,7 @@ correctamente inicializado.
     http://localhost:${port_host}/
 ```
 
-Para deterner la ejecución del contenedor:
+Para detener la ejecución del contenedor:
 
 ```bash
     $ docker stop ${nombre_del_contenedor}
