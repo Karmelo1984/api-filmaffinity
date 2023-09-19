@@ -1,7 +1,7 @@
 {
    "name": "api-filmaffinity",
    "version": "2.0.0",
-   "main": "index.js",
+   "main": "index.ts",
    "license": "MIT",
    "description": "API REST para extracción de datos de peliculas desde filmaffinity",
    "dependencies": {

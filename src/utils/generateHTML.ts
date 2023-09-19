@@ -1,6 +1,7 @@
 import markdownIt from 'markdown-it';
 import logger from '../logger';
 import { CustomError, handleError } from '../types/CustomError';
+import { varEntorno } from '../..';
 
 /**
  * Convierte un documento en formato Markdown a HTML.
@@ -24,7 +25,7 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>API Filmaffinity ${process.env.VERSION}</title>
+                <title>API Filmaffinity ${varEntorno.VERSION}</title>
                 <style>
                     ${styleCss}
                 </style>

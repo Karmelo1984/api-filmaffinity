@@ -1,9 +1,10 @@
 import winston, { createLogger, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import { varEntorno } from '..';
 
-const PATH_LOG = process.env.PATH_LOG;
-const LOG_NAME = process.env.LOG_NAME;
-const HEAD_LEN = parseInt(process.env.HEAD_LEN ?? '25');
+const PATH_LOG = varEntorno.PATH_LOG;
+const LOG_NAME = varEntorno.LOG_NAME;
+const HEAD_LEN = varEntorno.HEAD_LEN;
 
 // Define una función de formato personalizada
 const customFormat = winston.format.printf(({ timestamp, level, message }) => {
