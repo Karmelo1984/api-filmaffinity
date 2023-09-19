@@ -20,12 +20,6 @@ Es necesaria la versión v18.17.1 de nodejs.
     $ node --version
 ```
 
-Se ha usado yarn, en la versión 1.22.19, como gestor de paquetes.
-
-```bash
-    $ yarn --version
-```
-
 Ejecuta el siguiente comando para instalar las dependencias correspondientes.
 
 ```bash
@@ -82,7 +76,7 @@ correctamente inicializado.
     http://localhost:${port_host}/
 ```
 
-Para parar el contenedor:
+Para deterner la ejecución del contenedor:
 
 ```bash
     $ docker stop ${nombre_del_contenedor}
@@ -96,27 +90,11 @@ Para volver a ejecutarlo en primer plano (si lo quieres ejecutar en segundo plan
 
 ## API-REST
 
-### Búsqueda de películas por título
-
-Busca todas las películas cuyo título se adapta al patrón indicado. Acepta un patrón opcional 'year'
-
--  Método: GET
--  URL: `http://localhost:3000/api/search?lang=${'es'|'en'}&query=${patrón a buscar}`
-
-### Extraer datos mediante un ID de Filmaffinity
-
-Obtiene los datos de una película o serie mediante un ID de Filmaffinity.
-
--  Método: GET
--  URL: `http://localhost:3000/api/film?lang=${'es'|'en'}&id=${id}`
-
-### Extraer datos mediante un URL de Filmaffinity
-
-Obtiene los datos de una película o serie mediante una URL completa de Filmaffinity.
-
--  Método: POST
--  URL: `http://localhost:3000/api/film`
--  BODY: {"url": "https://www.filmaffinity.com/es/film819745.html"}
+| Método | API                                           | Parámetros                                                   | Descripción                                               |
+| ------ | --------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| GET    | Búsqueda de películas por título              | `lang=${'es' or 'en'}&query=${patrón a buscar}`              | Busca películas por título adaptándose al patrón indicado |
+| GET    | Extraer datos mediante un ID de Filmaffinity  | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
+| POST   | Extraer datos mediante un URL de Filmaffinity | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
 
 ## Ejemplos de uso
 

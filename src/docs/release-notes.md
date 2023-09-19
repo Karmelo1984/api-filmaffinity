@@ -1,5 +1,11 @@
 # Release Notes
 
+## [Versión 2.0.1] - Fecha de Lanzamiento (2023-Sept-18)
+
+### Características Generales
+
+-  Solucionado error en la carga de las variables de entorno, cuando se trata de un contenedor docker.
+
 ## [Versión 2.0.0] - Fecha de Lanzamiento (2023-Sept-19)
 
 ### Características Generales
