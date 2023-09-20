@@ -92,11 +92,11 @@ Para volver a ejecutarlo en primer plano (si lo quieres ejecutar en segundo plan
 
 ## API-REST
 
-| Método | API                                           | Parámetros                                                   | Descripción                                               |
-| ------ | --------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| Método | API         | Parámetros                                                   | Descripción                                               |
+| ------ | ------------| ------------------------------------------------------------ | --------------------------------------------------------- |
 | GET    | /api/search | `lang=${'es' or 'en'}&query=${patrón a buscar}`              | Busca películas por título adaptándose al patrón indicado |
-| GET    | /api/film | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
-| POST   | /api/film | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
+| GET    | /api/film   | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
+| POST   | /api/film   | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
 
 ## Ejemplos de uso
 
