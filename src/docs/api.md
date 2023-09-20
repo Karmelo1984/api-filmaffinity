@@ -2,9 +2,9 @@
 
 | Método | API                                           | Parámetros                                                   | Descripción                                               |
 | ------ | --------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
-| GET    | Búsqueda de películas por título              | `lang=${'es' or 'en'}&query=${patrón a buscar}`              | Busca películas por título adaptándose al patrón indicado |
-| GET    | Extraer datos mediante un ID de Filmaffinity  | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
-| POST   | Extraer datos mediante un URL de Filmaffinity | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
+| GET    | /api/search | `lang=${'es' or 'en'}&query=${patrón a buscar}`              | Busca películas por título adaptándose al patrón indicado |
+| GET    | /api/film | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
+| POST   | /api/film | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
 
 ## Ejemplos de uso
 
