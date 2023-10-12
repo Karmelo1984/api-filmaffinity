@@ -25,7 +25,7 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>API Filmaffinity ${varEntorno.VERSION}</title>
+                <title>API Filmaffinity ${varEntorno.APP_VERSION}</title>
                 <style>
                     ${styleCss}
                 </style>

@@ -1,18 +1,19 @@
 # API-REST
 
-| Método | API         | Parámetros                                                   | Descripción                                               |
-| ------ | ------------| ------------------------------------------------------------ | --------------------------------------------------------- |
-| GET    | /api/search | `lang=${'es' or 'en'}&query=${patrón a buscar}`              | Busca películas por título adaptándose al patrón indicado |
-| GET    | /api/film   | `lang=${'es' or 'en'}&id=${id}`                              | Obtiene datos de una película o serie mediante un ID      |
-| POST   | /api/film   | `{"url": "https://www.filmaffinity.com/es/film819745.html"}` | Obtiene datos de una película o serie mediante una URL    |
+| Método | API         | Parámetros                                                                   | Descripción                                               |
+| ------ | ----------- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
+| GET    | /api/search | `lang=${'es' or 'en'}&year=${año}&query=${patrón a buscar}` (Opcional: year) | Busca películas por título adaptándose al patrón indicado |
+| GET    | /api/film   | `lang=${'es' or 'en'}&id=${id}`                                              | Obtiene datos de una película o serie mediante un ID      |
+| POST   | /api/film   | `{"url": "https://www.filmaffinity.com/es/film819745.html"}`                 | Obtiene datos de una película o serie mediante una URL    |
 
-## Ejemplos de uso
+# Ejemplos de uso
 
 ## Búsqueda de películas cuyo título coincida con el string de búsqueda introducido
 
-## Ejemplo 1
+### Ejemplo 1
 
-GET http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo
+GET
+[http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo](http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo)
 
 ```json
 [
@@ -43,9 +44,26 @@ GET http://localhost:3000/api/search?lang=es&query=lo+que+el+viento+se+llevo
 ]
 ```
 
-## Ejemplo 2
+### Ejemplo 2
 
-GET http://localhost:3000/api/search?lang=en&query=menace+phantom
+GET
+[http://localhost:3000/api/search?lang=es&year=1939&query=lo+que+el+viento+se+llevo](http://localhost:3000/api/search?lang=es&year=1939&query=lo+que+el+viento+se+llevo)
+
+```json
+[
+   {
+      "id": 470268,
+      "titulo": "Lo que el viento se llevó",
+      "anyo": 1939,
+      "link": "https://www.filmaffinity.com/es/film470268.html"
+   }
+]
+```
+
+### Ejemplo 3
+
+GET
+[http://localhost:3000/api/search?lang=en&query=menace+phantom](http://localhost:3000/api/search?lang=en&query=menace+phantom)
 
 ```json
 [
@@ -60,9 +78,9 @@ GET http://localhost:3000/api/search?lang=en&query=menace+phantom
 
 ## Búsqueda de una película a través de su ID
 
-## Ejemplo 1
+### Ejemplo 1
 
-GET http://localhost:3000/api/film?lang=es&id=470268
+GET [http://localhost:3000/api/film?lang=es&id=470268](http://localhost:3000/api/film?lang=es&id=470268)
 
 ```json
 {
@@ -85,9 +103,9 @@ GET http://localhost:3000/api/film?lang=es&id=470268
 }
 ```
 
-## Ejemplo 2
+### Ejemplo 2
 
-GET http://localhost:3000/api/film?lang=en&id=267008
+GET [http://localhost:3000/api/film?lang=en&id=267008](http://localhost:3000/api/film?lang=en&id=267008)
 
 ```json
 {
@@ -110,9 +128,9 @@ GET http://localhost:3000/api/film?lang=en&id=267008
 }
 ```
 
-## Ejemplo 3
+### Ejemplo 3
 
-POST http://localhost:3000/api/film
+POST [http://localhost:3000/api/film](http://localhost:3000/api/film)
 
 ```json
 {

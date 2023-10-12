@@ -2,8 +2,27 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { findUndefinedProperties } from './src/utils';
 
+import * as fs from 'fs';
+import * as path from 'path';
+
+const packageJsonPath = path.join(__dirname, 'package.json'); // Ruta al package.json
+
+try {
+   const data = fs.readFileSync(packageJsonPath, 'utf8');
+   const packageJson = JSON.parse(data);
+   const version = packageJson.version;
+
+   // Configura la variable de entorno con la versión
+   process.env.APP_VERSION = version;
+
+   console.log(`Versión de la aplicación: ${version}`);
+} catch (error) {
+   console.error('❌ Error al leer o analizar el archivo package.json:', error);
+   process.exit(1);
+}
+
 export const varEntorno = {
-   VERSION: process.env.VERSION ?? 'v2.0.1',
+   APP_VERSION: process.env.APP_VERSION,
    PORT: process.env.PORT,
    URL: process.env.URL ?? 'http://localhost',
    PATH_LOG: process.env.PATH_LOG ?? 'logs',
@@ -15,7 +34,7 @@ const undefinedVariables: string[] = findUndefinedProperties(varEntorno);
 
 if (undefinedVariables.length > 0) {
    console.error(`❌ Las siguientes variables de entorno no están definidas [${undefinedVariables.join(', ')}]`);
-   console.error(`❌ NO se puede continuar, para evitar posibles errores.`);
+   console.error(`❌ Para evitar posibles errores de inconsistencia, NO se puede continuar.`);
    process.exit(1);
 }
 
