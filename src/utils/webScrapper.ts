@@ -68,6 +68,10 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
 
    const inSpanish = lang === 'es';
 
+   const palabrasClave: string[] = ['Historia', 'Novela', 'Obra', 'Storyboard', 'Personajes', 'Videojuego'];
+
+   logger.debug(`getFilmInfoFromUrl  -->  palabrasClave: ${palabrasClave}`);
+
    try {
       const $ = await getPageHTML(url);
 
@@ -84,29 +88,26 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          reparto = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a');
       }
 
-      const generos = arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a');
-      const companias = arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a');
       const nota = $('#movie-rat-avg').attr('content');
       const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
-      const img = $('img[itemprop="image"]').attr('src');
 
       const result: FilmResponse = {
-         titulo: titulo,
-         titulo_original: getTextFromCheerioAPI($, inSpanish, 'Título original', 'Original title').replace(/aka$/, ''),
-         anyo: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
-         duracion: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
-         sinopsis: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
-         nota: nota !== undefined ? parseFloat(nota) : 0,
-         votos: votos !== undefined ? parseInt(votos, 10) : 0,
-         img: img ?? '',
-         pais: getTextFromCheerioAPI($, inSpanish, 'País', 'Country'),
-         direccion: getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
-         guion: getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter').replace('.  Novela', ' | Novela'),
-         reparto: reparto,
-         musica: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music'),
-         fotografia: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography'),
-         companias: companias,
-         genero: generos,
+         title: titulo,
+         originalTitle: getTextFromCheerioAPI($, inSpanish, 'Título original', 'Original title').replace(/aka$/, ''),
+         year: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
+         duration: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
+         sinopsys: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
+         genre: arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a'),
+         rating: nota !== undefined ? parseFloat(nota) : 0,
+         votes: votos !== undefined ? parseInt(votos, 10) : 0,
+         image: $('img[itemprop="image"]').attr('src') ?? '',
+         nationality: getTextFromCheerioAPI($, inSpanish, 'País', 'Country'),
+         directedBy: getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
+         screenplay: limpiarTexto(getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter'), palabrasClave),
+         cast: reparto,
+         music: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music'),
+         photography: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography'),
+         studio: arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a'),
       };
 
       return result;
@@ -276,4 +277,14 @@ function getTextFromCheerioAPI(cheerio: CheerioAPI, inSpanish: boolean, esValue:
    logger.debug(`getTextFromCheerioAPI  -->  ${parse}`);
 
    return cheerio(`${parse}`).next().text().replace(/\n/g, ' ').trim();
+}
+
+function limpiarTexto(texto: string, palabrasClave: string[]): string {
+   // Utilizar una expresión regular para eliminar el texto que sigue a las palabras clave
+   const palabrasClaveRegex = new RegExp(
+      '(' + palabrasClave.map((palabra) => `\\s*\\.?\\s*${palabra}.*?`).join('|') + ')(?:\\.|$)',
+      'g',
+   );
+   const textoLimpio = texto.replace(palabrasClaveRegex, '');
+   return textoLimpio.trim();
 }

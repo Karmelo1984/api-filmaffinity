@@ -1,18 +1,18 @@
 export interface FilmResponse {
-   titulo: string;
-   titulo_original: string;
-   anyo: number;
-   duracion: string;
-   sinopsis: string;
-   nota: number;
-   votos: number;
-   img: string;
-   pais: string;
-   direccion: string;
-   guion: string;
-   reparto: string;
-   musica: string;
-   fotografia: string;
-   companias: string;
-   genero: string;
+   title: string;
+   originalTitle: string;
+   year: number;
+   duration: string;
+   sinopsys: string;
+   genre: string;
+   rating: number;
+   votes: number;
+   image: string;
+   nationality: string;
+   directedBy: string;
+   screenplay: string;
+   cast: string;
+   music: string;
+   photography: string;
+   studio: string;
 }
