@@ -21,25 +21,29 @@ GET
       "id": 470268,
       "titulo": "Lo que el viento se llevó",
       "anyo": 1939,
-      "link": "https://www.filmaffinity.com/es/film470268.html"
+      "link": "https://www.filmaffinity.com/es/film470268.html",
+      "api": "http://localhost:3000/api/film?lang=es&id=470268"
    },
    {
       "id": 796616,
       "titulo": "El viento se llevó lo que",
       "anyo": 1998,
-      "link": "https://www.filmaffinity.com/es/film796616.html"
+      "link": "https://www.filmaffinity.com/es/film796616.html",
+      "api": "http://localhost:3000/api/film?lang=es&id=796616"
    },
    {
       "id": 333451,
       "titulo": "La realización de una leyenda: 'Lo que el viento se llevó' (TV)",
       "anyo": 1988,
-      "link": "https://www.filmaffinity.com/es/film333451.html"
+      "link": "https://www.filmaffinity.com/es/film333451.html",
+      "api": "http://localhost:3000/api/film?lang=es&id=333451"
    },
    {
       "id": 484826,
       "titulo": "Ni se lo llevó el viento, ni puñetera falta que hacía",
       "anyo": 1982,
-      "link": "https://www.filmaffinity.com/es/film484826.html"
+      "link": "https://www.filmaffinity.com/es/film484826.html",
+      "api": "http://localhost:3000/api/film?lang=es&id=484826"
    }
 ]
 ```
@@ -53,9 +57,10 @@ GET
 [
    {
       "id": 470268,
-      "titulo": "Lo que el viento se llevó",
-      "anyo": 1939,
-      "link": "https://www.filmaffinity.com/es/film470268.html"
+      "title": "Lo que el viento se llevó",
+      "year": 1939,
+      "link": "https://www.filmaffinity.com/es/film470268.html",
+      "api": "http://localhost:3000/api/film?lang=es&id=470268"
    }
 ]
 ```
@@ -69,9 +74,10 @@ GET
 [
    {
       "id": 267008,
-      "titulo": "Star Wars. Episode I: The Phantom Menace",
-      "anyo": 1999,
-      "link": "https://www.filmaffinity.com/en/film267008.html"
+      "title": "Star Wars. Episode I: The Phantom Menace",
+      "year": 1999,
+      "link": "https://www.filmaffinity.com/en/film267008.html",
+      "api": "http://localhost:3000/api/film?lang=en&id=267008"
    }
 ]
 ```
@@ -84,22 +90,22 @@ GET [http://localhost:3000/api/film?lang=es&id=470268](http://localhost:3000/api
 
 ```json
 {
-   "titulo": "Lo que el viento se llevó",
-   "titulo_original": "Gone with the Wind",
-   "anyo": 1939,
-   "duracion": "238 min.",
-   "pais": "Estados Unidos",
-   "direccion": "Victor Fleming, George Cukor, Sam Wood",
-   "guion": "Sidney Howard, Oliver H.P. Garrett, Ben Hecht, Jo Swerling, John Van Druten | Novela: Margaret Mitchell",
-   "reparto": "Vivien Leigh | Clark Gable | Olivia de Havilland | Leslie Howard | Hattie McDaniel | Thomas Mitchell | Barbara O'Neil | Butterfly McQueen | Ona Munson | Ann Rutherford | Evelyn Keyes | Mickey Kuhn | Ward Bond | George Reeves",
-   "musica": "Max Steiner",
-   "fotografia": "Ernest Haller",
-   "companias": "Selznick International Pictures | Metro-Goldwyn-Mayer (MGM)",
-   "genero": "Drama | Romance | Aventuras",
-   "sinopsis": "Georgia, 1861. En la elegante mansión sureña de Tara, vive Scarlett O'Hara (Vivien Leigh), la joven más bella, caprichosa y egoísta de la región. Ella suspira por el amor de Ashley (Leslie Howard), pero él está prometido con su prima, la dulce y bondadosa Melanie (Olivia de Havilland). En la última fiesta antes del estallido de la Guerra de Secesión (1861-1865), Scarlett conoce al cínico y apuesto Rhett Butler (Clark Gable), un vividor arrogante y aventurero, que sólo piensa en sí mismo y que no tiene ninguna intención de participar en la contienda. Lo único que él desea es hacerse rico y conquistar el corazón de la hermosa Scarlett.",
-   "nota": 7.9,
-   "votos": 58970,
-   "img": "https://pics.filmaffinity.com/gone_with_the_wind-432251527-mmed.jpg"
+   "title": "Lo que el viento se llevó",
+   "originalTitle": "Gone with the Wind",
+   "year": 1939,
+   "duration": "238 min.",
+   "sinopsys": "Georgia, 1861. En la elegante mansión sureña de Tara, vive Scarlett O'Hara (Vivien Leigh), la joven más bella, caprichosa y egoísta de la región. Ella suspira por el amor de Ashley (Leslie Howard), pero él está prometido con su prima, la dulce y bondadosa Melanie (Olivia de Havilland). En la última fiesta antes del estallido de la Guerra de Secesión (1861-1865), Scarlett conoce al cínico y apuesto Rhett Butler (Clark Gable), un vividor arrogante y aventurero, que sólo piensa en sí mismo y que no tiene ninguna intención de participar en la contienda. Lo único que él desea es hacerse rico y conquistar el corazón de la hermosa Scarlett.",
+   "genre": "Drama | Romance | Aventuras",
+   "rating": 7.9,
+   "votes": 59014,
+   "image": "https://pics.filmaffinity.com/gone_with_the_wind-432251527-mmed.jpg",
+   "nationality": "Estados Unidos",
+   "directedBy": "Victor Fleming | George Cukor | Sam Wood",
+   "screenplay": "Sidney Howard | Oliver H.P. Garrett | Ben Hecht | Jo Swerling | John Van Druten",
+   "cast": "Vivien Leigh | Clark Gable | Olivia de Havilland | Leslie Howard | Hattie McDaniel | Thomas Mitchell | Barbara O'Neil | Butterfly McQueen | Ona Munson | Ann Rutherford | Evelyn Keyes | Mickey Kuhn | Ward Bond | George Reeves",
+   "music": "Max Steiner",
+   "photography": "Ernest Haller",
+   "studio": "Selznick International Pictures | Metro-Goldwyn-Mayer (MGM)"
 }
 ```
 
@@ -109,22 +115,22 @@ GET [http://localhost:3000/api/film?lang=en&id=267008](http://localhost:3000/api
 
 ```json
 {
-   "titulo": "Star Wars. Episode I: The Phantom Menace",
-   "titulo_original": "Star Wars. Episode I: The Phantom Menace",
-   "anyo": 1999,
-   "duracion": "130 min.",
-   "pais": "United States",
-   "direccion": "George Lucas",
-   "guion": "George Lucas",
-   "reparto": "Liam Neeson | Ewan McGregor | Natalie Portman | Jake Lloyd | Samuel L. Jackson | Ian McDiarmid | Ray Park | Anthony Daniels | Kenny Baker | Pernilla August | Hugh Quarshie | Ahmed Best | Andy Secombe",
-   "musica": "John Williams",
-   "fotografia": "David Tattersall",
-   "companias": "Lucasfilm | 20th Century Fox",
-   "genero": "Sci-Fi | Adventure",
-   "sinopsis": "The first of three prequels to George Lucas’s celebrated STAR WARS films, EPISODE I - THE PHANTOM MENACE is set some 30 years before STAR WARS: EPISODE IV - A NEW HOPE in the era of the Republic. Naboo, a peaceful planet governed by the young, but wise Queen Amidala (Natalie Portman), is being threatened by the corrupt Trade Federation, puppets of an evil Sith lord and his terrifying apprentice, Darth Maul (Ray Park). The seemingly benevolent Senator Palpatine (Ian McDiarmid) is chief adviser to the queen, though there are suspicions surrounding him. Jedi knights Qui-Gon Jinn (Liam Neeson) and Obi-Wan Kenobi (Ewan McGregor, performing an amazing vocal interpretation of Alec Guinness, the older Obi-Wan) are called on to intervene in the trade disputes. Along the way, they acquire an apprentice of their own in the form of young prodigal Anakin Skywalker (Jake Lloyd), or as STAR WARS fans know him, the future Darth Vader. They also encounter Jar Jar Binks (Ahmed Best), a goofy, lizardlike creature who has been banished from his underwater world for his clumsiness. When the Trade Federation launches an attack on Naboo, the queen and her allies must battle hordes of robot troopers while Qui-Gon and Obi-Wan face off against the sinister Darth Maul.",
-   "nota": 6.3,
-   "votos": 103804,
-   "img": "https://pics.filmaffinity.com/star_wars_episode_i_the_phantom_menace-434398792-mmed.jpg"
+   "title": "Star Wars. Episode I: The Phantom Menace",
+   "originalTitle": "Star Wars. Episode I: The Phantom Menace",
+   "year": 1999,
+   "duration": "130 min.",
+   "sinopsys": "The first of three prequels to George Lucas’s celebrated STAR WARS films, EPISODE I - THE PHANTOM MENACE is set some 30 years before STAR WARS: EPISODE IV - A NEW HOPE in the era of the Republic. Naboo, a peaceful planet governed by the young, but wise Queen Amidala (Natalie Portman), is being threatened by the corrupt Trade Federation, puppets of an evil Sith lord and his terrifying apprentice, Darth Maul (Ray Park). The seemingly benevolent Senator Palpatine (Ian McDiarmid) is chief adviser to the queen, though there are suspicions surrounding him. Jedi knights Qui-Gon Jinn (Liam Neeson) and Obi-Wan Kenobi (Ewan McGregor, performing an amazing vocal interpretation of Alec Guinness, the older Obi-Wan) are called on to intervene in the trade disputes. Along the way, they acquire an apprentice of their own in the form of young prodigal Anakin Skywalker (Jake Lloyd), or as STAR WARS fans know him, the future Darth Vader. They also encounter Jar Jar Binks (Ahmed Best), a goofy, lizardlike creature who has been banished from his underwater world for his clumsiness. When the Trade Federation launches an attack on Naboo, the queen and her allies must battle hordes of robot troopers while Qui-Gon and Obi-Wan face off against the sinister Darth Maul.",
+   "genre": "Sci-Fi | Adventure",
+   "rating": 6.3,
+   "votes": 103867,
+   "image": "https://pics.filmaffinity.com/star_wars_episode_i_the_phantom_menace-434398792-mmed.jpg",
+   "nationality": "United States",
+   "directedBy": "George Lucas",
+   "screenplay": "George Lucas",
+   "cast": "Liam Neeson | Ewan McGregor | Natalie Portman | Jake Lloyd | Samuel L. Jackson | Ian McDiarmid | Ray Park | Anthony Daniels | Kenny Baker | Pernilla August | Hugh Quarshie | Ahmed Best | Andy Secombe",
+   "music": "John Williams",
+   "photography": "David Tattersall",
+   "studio": "Lucasfilm | 20th Century Fox"
 }
 ```
 
@@ -140,21 +146,21 @@ POST [http://localhost:3000/api/film](http://localhost:3000/api/film)
 
 ```json
 {
-   "titulo": "El año de la garrapata",
-   "titulo_original": "El año de la garrapata",
-   "anyo": 2004,
-   "duracion": "105 min.",
-   "pais": "España",
-   "direccion": "Jorge Coira",
-   "guion": "Carlos Portela",
-   "reparto": "Félix Gómez | Javier Veiga | Verónica Sánchez | María Vázquez | Víctor Clavijo | Camila Bossa | Mela Casal | Celso Parada | Luis Zahera | Josefina Gómez | Rosa Álvarez | Elina Luaces | Manuel Millán",
-   "musica": "",
-   "fotografia": "Chechu Graf",
-   "companias": "Filmanova | LugoPress | Filmanova Invest | Televisión de Galicia (TVG)",
-   "genero": "Comedia",
-   "sinopsis": "Fran llega al inevitable momento de acabar la carrera. A partir de ahí, surge un caudal de dilemas de los que va a depender su futuro. Los primeros trabajos siempre frustrantes y en muchos casos, próximos al absurdo; los problemas con su novia provocados por la crisis post-licenciatura, la lotería de las oposiciones etc... van a traer de cabeza a nuestro protagonista. Cada decisión será vital, aunque Fran tendrá la guía de Morgan, hijo de ricos y orgulloso teórico del \"garrapatismo\", del que aprenderá mucho sobre cómo llegar a la dolce vita de la dependencia paterna.",
-   "nota": 5.8,
-   "votos": 7541,
-   "img": "https://pics.filmaffinity.com/el_ano_de_la_garrapata-136495103-mmed.jpg"
+   "title": "The Year of the Tick",
+   "originalTitle": "El año de la garrapata",
+   "year": 2004,
+   "duration": "105 min.",
+   "sinopsys": "",
+   "genre": "Comedy",
+   "rating": 5.8,
+   "votes": 7549,
+   "image": "https://pics.filmaffinity.com/el_ano_de_la_garrapata-136495103-mmed.jpg",
+   "nationality": "Spain",
+   "directedBy": "Jorge Coira",
+   "screenplay": "Carlos Portela",
+   "cast": "Félix Gómez | Javier Veiga | Verónica Sánchez | María Vázquez | Víctor Clavijo | Camila Bossa | Mela Casal | Celso Parada | Luis Zahera | Josefina Gómez | Rosa Álvarez | Elina Luaces | Manuel Millán",
+   "music": "",
+   "photography": "Chechu Graf",
+   "studio": "Filmanova | LugoPress | Filmanova Invest | Televisión de Galicia (TVG)"
 }
 ```
