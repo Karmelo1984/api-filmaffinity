@@ -40,6 +40,7 @@ FROM base AS production
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=build $DIR/node_modules $DIR/node_modules
 COPY --from=build $DIR/dist $DIR/dist
+COPY --from=build $DIR/package.json $DIR/dist/package.json
 
 # Iniciamos una variable de entorno que indica que estamos en produccion
 ENV NODE_ENV=production
