@@ -73,18 +73,19 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
 
       const titulo = $('h1#main-title span[itemprop="name"]').text().trim();
 
-      const reparto = $('li[itemprop="actor"]')
+      let reparto = $('li[itemprop="actor"]')
          .map(function () {
             const title = $(this).find('a[itemprop="url"]').attr('title');
             return title ? title.trim() : ''; // Comprobación de nulidad y valor predeterminado
          })
          .get()
          .join(' | ');
+      if (!reparto) {
+         reparto = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a');
+      }
 
       const generos = arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a');
-
       const companias = arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a');
-
       const nota = $('#movie-rat-avg').attr('content');
       const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
       const img = $('img[itemprop="image"]').attr('src');
@@ -219,7 +220,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             titulo: $('h1#main-title span[itemprop="name"]').text().trim(),
             anyo: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
             link: enlace,
-            api: `${server}//api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
+            api: `${server}/api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
          });
       }
 
