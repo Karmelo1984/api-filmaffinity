@@ -97,16 +97,25 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          year: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
          duration: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
          sinopsys: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
-         genre: arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a'),
+         genre: arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a').replaceAll(
+            ', ',
+            ' | ',
+         ),
          rating: nota !== undefined ? parseFloat(nota) : 0,
          votes: votos !== undefined ? parseInt(votos, 10) : 0,
          image: $('img[itemprop="image"]').attr('src') ?? '',
-         nationality: getTextFromCheerioAPI($, inSpanish, 'País', 'Country'),
-         directedBy: getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
-         screenplay: limpiarTexto(getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter'), palabrasClave),
+         nationality: getTextFromCheerioAPI($, inSpanish, 'País', 'Country').replaceAll(', ', ' | '),
+         directedBy: limpiarTexto(
+            getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
+            palabrasClave,
+         ).replaceAll(', ', ' | '),
+         screenplay: limpiarTexto(
+            getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter'),
+            palabrasClave,
+         ).replaceAll(', ', ' | '),
          cast: reparto,
-         music: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music'),
-         photography: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography'),
+         music: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music').replaceAll(', ', ' | '),
+         photography: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography').replaceAll(', ', ' | '),
          studio: arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a'),
       };
 
@@ -198,8 +207,8 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
 
             result.push({
                id: parseInt(id, 10),
-               titulo: $(this).find('.mc-title a').text().trim(),
-               anyo: anyo_encontrado,
+               title: $(this).find('.mc-title a').text().trim(),
+               year: anyo_encontrado,
                link: enlace,
                api: `${server}/api/film?lang=${lang}&id=${parseInt(id, 10)}`,
             });
@@ -218,8 +227,8 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
 
          result.push({
             id: parseInt(matchResult[1], 10),
-            titulo: $('h1#main-title span[itemprop="name"]').text().trim(),
-            anyo: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
+            title: $('h1#main-title span[itemprop="name"]').text().trim(),
+            year: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
             link: enlace,
             api: `${server}/api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
          });
