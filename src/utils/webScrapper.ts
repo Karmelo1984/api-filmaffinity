@@ -10,6 +10,10 @@ import { FilmResponse } from '../types/Response/FilmResponse';
 import { FilmRequest } from '../types/Request/FilmRequest';
 import { SearchRequest } from '../types/Request/SearchRequest';
 
+import { varEntorno } from '../..';
+
+const server: string = `${varEntorno.URL}:${varEntorno.PORT}`;
+
 /**
  * Realiza una búsqueda en 'FilmAffinity' y devuelve una lista de resultados de búsqueda.
  *
@@ -90,6 +94,10 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          titulo_original: getTextFromCheerioAPI($, inSpanish, 'Título original', 'Original title').replace(/aka$/, ''),
          anyo: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
          duracion: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
+         sinopsis: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
+         nota: nota !== undefined ? parseFloat(nota) : 0,
+         votos: votos !== undefined ? parseInt(votos, 10) : 0,
+         img: img ?? '',
          pais: getTextFromCheerioAPI($, inSpanish, 'País', 'Country'),
          direccion: getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
          guion: getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter').replace('.  Novela', ' | Novela'),
@@ -98,10 +106,6 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          fotografia: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography'),
          companias: companias,
          genero: generos,
-         sinopsis: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
-         nota: nota !== undefined ? parseFloat(nota) : 0,
-         votos: votos !== undefined ? parseInt(votos, 10) : 0,
-         img: img ?? '',
       };
 
       return result;
@@ -188,12 +192,14 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
                return;
             }
             const id = enlace.match(/film(\d+)\.html/)![1];
+            const lang = enlace.match(/\/([a-z]{2})\//)![1];
 
             result.push({
                id: parseInt(id, 10),
                titulo: $(this).find('.mc-title a').text().trim(),
                anyo: anyo_encontrado,
                link: enlace,
+               api: `${server}/api/film?lang=${lang}&id=${parseInt(id, 10)}`,
             });
          });
       } else {
@@ -201,6 +207,8 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
 
          const enlace = $('meta[property="og:url"]').attr('content') || '';
          const matchResult = enlace.match(/film(\d+)\.html/);
+
+         const lang = enlace.match(/\/([a-z]{2})\//)![1];
 
          if (matchResult === null) {
             return createError(logger, 'getSearchedFilms', 'Sin coincidencias con estos parámetros', 404, url);
@@ -211,6 +219,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             titulo: $('h1#main-title span[itemprop="name"]').text().trim(),
             anyo: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
             link: enlace,
+            api: `${server}//api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
          });
       }
 

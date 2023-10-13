@@ -3,4 +3,5 @@ export interface SearchResponse {
    titulo: string;
    anyo: number;
    link: string;
+   api: string;
 }

@@ -3,6 +3,10 @@ export interface FilmResponse {
    titulo_original: string;
    anyo: number;
    duracion: string;
+   sinopsis: string;
+   nota: number;
+   votos: number;
+   img: string;
    pais: string;
    direccion: string;
    guion: string;
@@ -11,8 +15,4 @@ export interface FilmResponse {
    fotografia: string;
    companias: string;
    genero: string;
-   sinopsis: string;
-   nota: number;
-   votos: number;
-   img: string;
 }
