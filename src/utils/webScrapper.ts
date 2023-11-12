@@ -181,15 +181,16 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
    logger.info(`getSearchedFilms  -->  url: ${JSON.stringify(search)}`);
 
    try {
-      const $ = await getPageHTML(url);
-
       const result: SearchResponse[] = [];
-      if (checkTitleForBusqueda($)) {
+      const $ = await getPageHTML(url);
+      const isBusqueda = checkTitleForBusqueda($);
+      const anyo_buscado = search.year ?? 0;
+
+      if (isBusqueda) {
          logger.debug(`getSearchedFilms  -->  Extrayendo datos de la búsqueda: ${url}`);
 
          $('.se-it.mt').each(function () {
             const anyo_encontrado = parseInt($(this).find('.ye-w').text(), 10);
-            const anyo_buscado = search.year ?? 0;
 
             // anyo_buscado > 0 significa que queremos encontrar la película de ese año
             // por tanto, en ese caso, no queremos las que anyo_encontrado !== anyo_encontrado
@@ -198,17 +199,22 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             }
             const enlace = $(this).find('.mc-title a').attr('href');
 
-            // Si enlace NO hay un enlace válido, no se ha ejecutado correctamente la búsqueda
+            // Si enlace es undefinned, NO hay un enlace válido, no se ha ejecutado correctamente la búsqueda
             if (enlace === undefined) {
                return;
             }
             const id = enlace.match(/film(\d+)\.html/)![1];
             const lang = enlace.match(/\/([a-z]{2})\//)![1];
 
+            const nota = $(this).find('.avgrat-box').text().trim().replace(',', '.');
+            const votos = $(this).find('.ratcount-box').text().trim().replace('.', '').replace(',', '');
+
             result.push({
                id: parseInt(id, 10),
                title: $(this).find('.mc-title a').text().trim(),
                year: anyo_encontrado,
+               rating: nota !== undefined ? parseFloat(nota) : 0,
+               votes: votos !== undefined ? parseInt(votos, 10) : 0,
                link: enlace,
                api: `${server}/api/film?lang=${lang}&id=${parseInt(id, 10)}`,
             });
@@ -216,24 +222,38 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
       } else {
          logger.debug(`getSearchedFilms  -->  Extrayendo datos de la película: ${url}`);
 
+         const anyo_encontrado = parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10);
+
          const enlace = $('meta[property="og:url"]').attr('content') || '';
          const matchResult = enlace.match(/film(\d+)\.html/);
 
-         const lang = enlace.match(/\/([a-z]{2})\//)![1];
-
-         if (matchResult === null) {
+         if (matchResult === null || (anyo_buscado > 0 && anyo_buscado != anyo_encontrado)) {
             return createError(logger, 'getSearchedFilms', 'Sin coincidencias con estos parámetros', 404, url);
          }
+
+         const lang = enlace.match(/\/([a-z]{2})\//)![1];
+         const nota = $('#movie-rat-avg').attr('content');
+         const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
 
          result.push({
             id: parseInt(matchResult[1], 10),
             title: $('h1#main-title span[itemprop="name"]').text().trim(),
-            year: parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10),
+            year: anyo_encontrado,
+            rating: nota !== undefined ? parseFloat(nota) : 0,
+            votes: votos !== undefined ? parseInt(votos, 10) : 0,
             link: enlace,
             api: `${server}/api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
          });
       }
-
+      if (result.length === 0) {
+         return createError(
+            logger,
+            'getSearchedFilms',
+            'La API no ha podido generar un JSON ¿el año indicado es correcto?',
+            404,
+            url,
+         );
+      }
       return result;
    } catch (error) {
       throw handleError(logger, 'getSearchedFilms', error);

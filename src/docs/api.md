@@ -19,31 +19,39 @@ GET
 [
    {
       "id": 470268,
-      "titulo": "Lo que el viento se llevó",
-      "anyo": 1939,
+      "title": "Lo que el viento se llevó",
+      "year": 1939,
+      "rating": 7.9,
+      "votes": 59065,
       "link": "https://www.filmaffinity.com/es/film470268.html",
-      "api": "http://localhost:3000/api/film?lang=es&id=470268"
+      "api": "http://localhost:3003/api/film?lang=es&id=470268"
    },
    {
       "id": 796616,
-      "titulo": "El viento se llevó lo que",
-      "anyo": 1998,
+      "title": "El viento se llevó lo que",
+      "year": 1998,
+      "rating": 6,
+      "votes": 748,
       "link": "https://www.filmaffinity.com/es/film796616.html",
-      "api": "http://localhost:3000/api/film?lang=es&id=796616"
+      "api": "http://localhost:3003/api/film?lang=es&id=796616"
    },
    {
       "id": 333451,
-      "titulo": "La realización de una leyenda: 'Lo que el viento se llevó' (TV)",
-      "anyo": 1988,
+      "title": "La realización de una leyenda: 'Lo que el viento se llevó' (TV)",
+      "year": 1988,
+      "rating": 7.4,
+      "votes": 84,
       "link": "https://www.filmaffinity.com/es/film333451.html",
-      "api": "http://localhost:3000/api/film?lang=es&id=333451"
+      "api": "http://localhost:3003/api/film?lang=es&id=333451"
    },
    {
       "id": 484826,
-      "titulo": "Ni se lo llevó el viento, ni puñetera falta que hacía",
-      "anyo": 1982,
+      "title": "Ni se lo llevó el viento, ni puñetera falta que hacía",
+      "year": 1982,
+      "rating": null,
+      "votes": null,
       "link": "https://www.filmaffinity.com/es/film484826.html",
-      "api": "http://localhost:3000/api/film?lang=es&id=484826"
+      "api": "http://localhost:3003/api/film?lang=es&id=484826"
    }
 ]
 ```
@@ -59,8 +67,10 @@ GET
       "id": 470268,
       "title": "Lo que el viento se llevó",
       "year": 1939,
+      "rating": 7.9,
+      "votes": 59065,
       "link": "https://www.filmaffinity.com/es/film470268.html",
-      "api": "http://localhost:3000/api/film?lang=es&id=470268"
+      "api": "http://localhost:3003/api/film?lang=es&id=470268"
    }
 ]
 ```
