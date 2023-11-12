@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/Karmelo1984/api-filmaffinity/compare/v3.0.0...v3.1.0) (2023-11-12)
+
+
+### Features
+
+* **/api/film:** ahora extrae las imágenes de los actores ([6196da6](https://github.com/Karmelo1984/api-filmaffinity/commit/6196da629a311580589a39f1ebf96c7a735331a5)), closes [#10](https://github.com/Karmelo1984/api-filmaffinity/issues/10)
+* **/api/search:** añadida puntuación de la película, y cantidad de votos, al apartado de búsqueda ([fb731ce](https://github.com/Karmelo1984/api-filmaffinity/commit/fb731ce47fddf77b4ac7b1be54e15a9c8c781405)), closes [#9](https://github.com/Karmelo1984/api-filmaffinity/issues/9)
+
+
+### Bug Fixes
+
+* **dockerfile:** solucionado error en la generación de la imagen de docker ([bbeac98](https://github.com/Karmelo1984/api-filmaffinity/commit/bbeac984fbf468380db0f0b6f9f8d39163f9ece8))
+
 ## [3.0.0](https://github.com/Karmelo1984/api-filmaffinity/compare/v2.0.2...v3.0.0) (2023-10-13)
 
 
