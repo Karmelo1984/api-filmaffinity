@@ -77,6 +77,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
 
       const titulo = $('h1#main-title span[itemprop="name"]').text().trim();
 
+      /*
       let reparto = $('li[itemprop="actor"]')
          .map(function () {
             const title = $(this).find('a[itemprop="url"]').attr('title');
@@ -84,9 +85,32 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          })
          .get()
          .join(' | ');
+      
+
       if (!reparto) {
          reparto = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a');
       }
+      */
+      let actores: { nombre: string; imagen: string | undefined }[] = [];
+      $('li[itemprop="actor"]').each(function () {
+         const nombre = $(this).find('a[itemprop="url"]').attr('title');
+         const imagen = $(this).find('img').attr('src');
+         if (nombre) {
+            actores.push({ nombre: nombre.trim(), imagen });
+         }
+      });
+
+      if (actores.length === 0) {
+         actores = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a')
+            .split(' | ')
+            .map((nombre) => ({ nombre, imagen: undefined }));
+      }
+
+      const reparto = actores.map((actor) => actor.nombre).join(' | ');
+      const reparto_images = actores.map((actor) => actor.imagen || 'NOT image').join(' | ');
+
+      console.log(reparto);
+      console.log(reparto_images);
 
       const nota = $('#movie-rat-avg').attr('content');
       const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
@@ -114,6 +138,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
             palabrasClave,
          ).replaceAll(', ', ' | '),
          cast: reparto,
+         cast_images: reparto_images,
          music: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music').replaceAll(', ', ' | '),
          photography: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography').replaceAll(', ', ' | '),
          studio: arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a'),

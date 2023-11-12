@@ -12,6 +12,7 @@ export interface FilmResponse {
    directedBy: string;
    screenplay: string;
    cast: string;
+   cast_images: string;
    music: string;
    photography: string;
    studio: string;
