@@ -14,7 +14,7 @@ export function extractSecondLevelElements(objeto: Record<string, any>): string[
          }
       }
    }
-   console.log('elementosSegundoNivel: ' + elementosSegundoNivel);
+
    return elementosSegundoNivel;
 }
 

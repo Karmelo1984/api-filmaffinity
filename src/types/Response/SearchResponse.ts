@@ -1,5 +1,5 @@
 export interface SearchResponse {
-   id: number;
+   id_film: number;
    title: string;
    year: number;
    rating: number;

@@ -5,7 +5,7 @@ import { CheerioAPI } from 'cheerio';
 
 import { CustomError, handleError, createError } from '../types/CustomError';
 import { SearchResponse } from '../types/Response/SearchResponse';
-import { FilmResponse } from '../types/Response/FilmResponse';
+import { Persona, FilmResponse, Pais } from '../types/Response/FilmResponse';
 
 import { FilmRequest } from '../types/Request/FilmRequest';
 import { SearchRequest } from '../types/Request/SearchRequest';
@@ -55,6 +55,11 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
    }
 }
 
+interface GuionData {
+   href?: string;
+   title?: string;
+}
+
 /**
  * Obtiene información detallada de una película a partir de la URL proporcionada.
  *
@@ -64,84 +69,161 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
  * o un objeto CustomError si ocurre un error durante la búsqueda.
  */
 async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmResponse | CustomError> {
+   const isSpanish = lang === 'es';
+   const quitarPalabrasDeGuion: string[] = ['Historia', 'Novela', 'Obra', 'Storyboard', 'Personajes', 'Videojuego'];
+   const quitarPalabrasDeGenero: string[] = ['Productor', 'Producer', 'Distribuidora', 'Distributor'];
+
+   const quitarPalabras = [...quitarPalabrasDeGenero, ...quitarPalabrasDeGuion];
+
    logger.info(`getFilmInfoFromUrl  -->  url: ${url}`);
-
-   const inSpanish = lang === 'es';
-
-   const palabrasClave: string[] = ['Historia', 'Novela', 'Obra', 'Storyboard', 'Personajes', 'Videojuego'];
-
-   logger.debug(`getFilmInfoFromUrl  -->  palabrasClave: ${palabrasClave}`);
+   logger.debug(`getFilmInfoFromUrl  -->  Palabras a quitar: ${quitarPalabras.join(', ')}`);
 
    try {
       const $ = await getPageHTML(url);
 
-      const titulo = $('h1#main-title span[itemprop="name"]').text().trim();
+      const getTitle = () => {
+         logger.debug(`getFilmInfoFromUrl  -->  getTitle()`);
+         const title = $('h1#main-title span[itemprop="name"]').text().trim();
+         const originalTitle = getInnerText(isSpanish ? 'Título original' : 'Original title').replace(/aka$/, '');
+         return { title, originalTitle };
+      };
 
-      /*
-      let reparto = $('li[itemprop="actor"]')
-         .map(function () {
-            const title = $(this).find('a[itemprop="url"]').attr('title');
-            return title ? title.trim() : ''; // Comprobación de nulidad y valor predeterminado
-         })
-         .get()
-         .join(' | ');
-      
+      const getPerson = (label: string) => {
+         logger.debug(`getFilmInfoFromUrl  -->  getPerson(${label})`);
 
-      if (!reparto) {
-         reparto = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a');
-      }
-      */
-      let actores: { nombre: string; imagen: string | undefined }[] = [];
-      $('li[itemprop="actor"]').each(function () {
-         const nombre = $(this).find('a[itemprop="url"]').attr('title');
-         const imagen = $(this).find('img').attr('src');
-         if (nombre) {
-            actores.push({ nombre: nombre.trim(), imagen });
-         }
-      });
+         let person: Persona[] = [];
+         const selectorDom: string =
+            label === 'actor' ? `li[itemprop="${label}"], span[itemprop="${label}"]` : `span[itemprop="${label}"]`;
 
-      if (actores.length === 0) {
-         actores = arrayToTextFromCheerioAPI($, inSpanish, 'Reparto', 'Cast', 'span[itemprop="actor"] a')
+         logger.debug(`getFilmInfoFromUrl  -->  [getPerson(${label})] selectorDom: ${selectorDom}`);
+
+         $(selectorDom).each(function () {
+            const hrefAttribute = $(this).find('a[itemprop="url"]').attr('href');
+            const idActor = extractIdPersonaFromURL(hrefAttribute);
+            const name = $(this).find('a[itemprop="url"]').attr('title');
+            const photo = $(this).find('img').attr('src');
+
+            if (name) {
+               person.push({ id_persona: idActor, name: name.trim(), photo: photo });
+            }
+         });
+
+         return person;
+      };
+
+      const cleanAndSplit = (label: string) => {
+         logger.debug(`getFilmInfoFromUrl  -->  cleanAndSplit(${label})`);
+
+         const texto = getInnerText(label)
             .split(' | ')
-            .map((nombre) => ({ nombre, imagen: undefined }));
-      }
+            .map((data) =>
+               data
+                  .replace(/\;/g, ',')
+                  .replace(/\./g, ',')
+                  .replace(/ & /g, ',')
+                  .replace(/ y /g, ',')
+                  .replace(/, /g, ',')
+                  .split(',')
+                  .map((item) =>
+                     item
+                        .split(' ')
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')
+                        .trim(),
+                  ),
+            );
 
-      const reparto = actores.map((actor) => actor.nombre).join(' | ');
-      const reparto_images = actores.map((actor) => actor.imagen || 'NOT image').join(' | ');
+         const textoPulido = texto
+            .flat()
+            .filter((value) => value !== '' && !quitarPalabras.some((word) => value.includes(word)));
 
-      console.log(reparto);
-      console.log(reparto_images);
+         return textoPulido;
+      };
 
-      const nota = $('#movie-rat-avg').attr('content');
-      const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
+      const getInnerText = (label: string) => {
+         logger.debug(`getFilmInfoFromUrl  -->  getInnerText(${label})`);
+
+         return $('dt:contains("' + label + '")')
+            .next('dd')
+            .text()
+            .replace(/\n/g, ' ') // Reemplaza saltos de línea por espacios
+            .replace(/\s+/g, ' ') // Reemplaza múltiples espacios en blanco por uno solo
+            .trim();
+      };
+
+      const extractPersonMovieInfo = (label: string): Persona[] => {
+         logger.debug(`getFilmInfoFromUrl  -->  extractPersonMovieInfo(${label})`);
+
+         const data: Persona[] = [];
+
+         $('dl.movie-info dt').each(function () {
+            const term = $(this).text().trim();
+
+            if (term === label) {
+               const items = $(this).next('dd').find('a');
+               items.each(function () {
+                  const href = $(this).attr('href');
+                  const title = $(this).attr('title');
+
+                  data.push({
+                     id_persona: extractIdPersonaFromURL(href),
+                     name: title?.trim() || '',
+                     photo: undefined,
+                  });
+               });
+
+               // Salir del bucle después de encontrar el 'label
+               return false;
+            }
+         });
+
+         return data;
+      };
+
+      const extractCountry = (label: string): Pais[] => {
+         logger.debug(`getFilmInfoFromUrl  -->  extractCountry(${label})`);
+
+         const data: Pais[] = [];
+
+         $('dl.movie-info dt').each(function () {
+            const term = $(this).text().trim();
+            if (term === label) {
+               const items = $(this).next('dd').find('img');
+               items.each(function () {
+                  const src = $(this).attr('src');
+                  const alt = $(this).attr('alt');
+
+                  data.push({
+                     id: src?.match(/\/countries2\/([A-Z]{2})\.png/)?.[1],
+                     name: alt,
+                     photo: `https://www.filmaffinity.com${src}`,
+                  });
+               });
+
+               // Salir del bucle después de encontrar el 'label
+               return false;
+            }
+         });
+         return data;
+      };
 
       const result: FilmResponse = {
-         title: titulo,
-         originalTitle: getTextFromCheerioAPI($, inSpanish, 'Título original', 'Original title').replace(/aka$/, ''),
-         year: parseInt(getTextFromCheerioAPI($, inSpanish, 'Año', 'Year'), 10),
-         duration: getTextFromCheerioAPI($, inSpanish, 'Duración', 'Running time'),
-         sinopsys: getTextFromCheerioAPI($, inSpanish, 'Sinopsis', 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
-         genre: arrayToTextFromCheerioAPI($, inSpanish, 'Género', 'Genre', 'span[itemprop="genre"] a').replaceAll(
-            ', ',
-            ' | ',
-         ),
-         rating: nota !== undefined ? parseFloat(nota) : 0,
-         votes: votos !== undefined ? parseInt(votos, 10) : 0,
-         image: $('img[itemprop="image"]').attr('src') ?? '',
-         nationality: getTextFromCheerioAPI($, inSpanish, 'País', 'Country').replaceAll(', ', ' | '),
-         directedBy: limpiarTexto(
-            getTextFromCheerioAPI($, inSpanish, 'Dirección', 'Director'),
-            palabrasClave,
-         ).replaceAll(', ', ' | '),
-         screenplay: limpiarTexto(
-            getTextFromCheerioAPI($, inSpanish, 'Guion', 'Screenwriter'),
-            palabrasClave,
-         ).replaceAll(', ', ' | '),
-         cast: reparto,
-         cast_images: reparto_images,
-         music: getTextFromCheerioAPI($, inSpanish, 'Música', 'Music').replaceAll(', ', ' | '),
-         photography: getTextFromCheerioAPI($, inSpanish, 'Fotografía', 'Cinematography').replaceAll(', ', ' | '),
-         studio: arrayToTextFromCheerioAPI($, inSpanish, 'Compañías', 'Producer', 'a'),
+         id_film: extractIdFilmFromURL(url),
+         ...getTitle(),
+         year: parseInt(getInnerText(isSpanish ? 'Año' : 'Year'), 10),
+         duration_min: parseInt(getInnerText(isSpanish ? 'Duración' : 'Running time'), 10),
+         synopsis: getInnerText(isSpanish ? 'Sinopsis' : 'Synopsis').replace(/ \(FILMAFFINITY\)/g, ''),
+         rating: parseFloat($('#movie-rat-avg').attr('content') || '0'),
+         votes: parseInt($('#movie-count-rat span[itemprop="ratingCount"]').attr('content') || '0', 10),
+         image: $('img[itemprop="image"]').attr('src') || '',
+         nationality: extractCountry(isSpanish ? 'País' : 'Country'),
+         directedBy: getPerson('director'),
+         cast: getPerson('actor'),
+         screenplay: extractPersonMovieInfo(isSpanish ? 'Guion' : 'Screenwriter'),
+         music: extractPersonMovieInfo(isSpanish ? 'Música' : 'Music'),
+         photography: extractPersonMovieInfo(isSpanish ? 'Fotografía' : 'Cinematography'),
+         studio: cleanAndSplit(isSpanish ? 'Compañías' : 'Producer'),
+         genre: cleanAndSplit(isSpanish ? 'Género' : 'Genre'),
       };
 
       return result;
@@ -228,20 +310,20 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             if (enlace === undefined) {
                return;
             }
-            const id = enlace.match(/film(\d+)\.html/)![1];
+            const id = extractIdFilmFromURL(enlace);
             const lang = enlace.match(/\/([a-z]{2})\//)![1];
 
             const nota = $(this).find('.avgrat-box').text().trim().replace(',', '.');
             const votos = $(this).find('.ratcount-box').text().trim().replace('.', '').replace(',', '');
 
             result.push({
-               id: parseInt(id, 10),
+               id_film: id,
                title: $(this).find('.mc-title a').text().trim(),
                year: anyo_encontrado,
                rating: nota !== undefined ? parseFloat(nota) : 0,
                votes: votos !== undefined ? parseInt(votos, 10) : 0,
                link: enlace,
-               api: `${server}/api/film?lang=${lang}&id=${parseInt(id, 10)}`,
+               api: `${server}/api/film?lang=${lang}&id=${id}`,
             });
          });
       } else {
@@ -250,7 +332,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
          const anyo_encontrado = parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10);
 
          const enlace = $('meta[property="og:url"]').attr('content') || '';
-         const matchResult = enlace.match(/film(\d+)\.html/);
+         const matchResult = extractIdFilmFromURL(enlace);
 
          if (matchResult === null || (anyo_buscado > 0 && anyo_buscado != anyo_encontrado)) {
             return createError(logger, 'getSearchedFilms', 'Sin coincidencias con estos parámetros', 404, url);
@@ -261,13 +343,13 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
          const votos = $('#movie-count-rat span[itemprop="ratingCount"]').attr('content');
 
          result.push({
-            id: parseInt(matchResult[1], 10),
+            id_film: matchResult,
             title: $('h1#main-title span[itemprop="name"]').text().trim(),
             year: anyo_encontrado,
             rating: nota !== undefined ? parseFloat(nota) : 0,
             votes: votos !== undefined ? parseInt(votos, 10) : 0,
             link: enlace,
-            api: `${server}/api/film?lang=${lang}&id=${parseInt(matchResult[1], 10)}`,
+            api: `${server}/api/film?lang=${lang}&id=${matchResult}`,
          });
       }
       if (result.length === 0) {
@@ -286,34 +368,49 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
 }
 
 /**
- * Extrae datos de una página web utilizando Cheerio.
+ * Extrae el ID de una película desde una URL.
  *
- * @param {CheerioAPI} cheerio      - La instancia de Cheerio que representa la página web.
- * @param {boolean} inSpanish       - Indica si se debe buscar en español o en inglés.
- * @param {string} esValue          - El valor en español para buscar en la página.
- * @param {string} enValue          - El valor en inglés para buscar en la página.
- * @param {string} toSearch         - El selector CSS para buscar los elementos deseados.
- * @returns {string} Una cadena que contiene los datos extraídos separados por '|' o una cadena vacía si no se encuentran datos.
+ * @param {string} url - La URL de la película.
+ * @return {number} El ID de la película si se encuentra en la URL, o -1 si no se encuentra.
  */
-function arrayToTextFromCheerioAPI(
-   cheerio: CheerioAPI,
-   inSpanish: boolean,
-   esValue: string,
-   enValue: string,
-   toSearch: string,
-) {
-   const parse = `dt:contains("${inSpanish ? esValue : enValue}")`;
+function extractIdFilmFromURL(url: string = ''): number {
+   //logger.debug(`extractIdFilmFromURL  -->  url: ${url}`);
 
-   logger.debug(`arrayToTextFromCheerioAPI  -->  ${parse}`);
+   const filmIdRegex = /film(\d+)\.html/;
+   return extractIdFromURL(url, filmIdRegex);
+}
 
-   return cheerio(`${parse}`)
-      .next()
-      .find(toSearch)
-      .map(function () {
-         return cheerio(this).text().trim() || '';
-      })
-      .get()
-      .join(' | ');
+/**
+ * Extrae el ID de un actor desde una URL.
+ *
+ * @param {string} url - La URL del actor.
+ * @return {number} El ID del actor si se encuentra en la URL, o -1 si no se encuentra.
+ */
+function extractIdPersonaFromURL(url: string = ''): number {
+   //logger.debug(`extractIdPersonaFromURL  -->  url: ${url}`);
+
+   const actorIdRegex = /name-id=(\d+)/;
+   return extractIdFromURL(url, actorIdRegex);
+}
+
+/**
+ * Extrae el ID de una URL dada utilizando una expresión regular.
+ *
+ * @param {string} url - La URL de la que se extraerá el ID.
+ * @param {RegExp} regex - La expresión regular que coincide con el ID en la URL.
+ * @return {number} El ID si se encuentra en la URL, o -1 si no se encuentra.
+ */
+function extractIdFromURL(url: string, regex: RegExp): number {
+   logger.debug(`extractIdFromURL  -->  url: ${url} | regex: ${regex}`);
+
+   const match = url.match(regex);
+
+   if (match) {
+      const number = parseInt(match[1], 10);
+      return number;
+   } else {
+      return -1;
+   }
 }
 
 /**
@@ -331,14 +428,4 @@ function getTextFromCheerioAPI(cheerio: CheerioAPI, inSpanish: boolean, esValue:
    logger.debug(`getTextFromCheerioAPI  -->  ${parse}`);
 
    return cheerio(`${parse}`).next().text().replace(/\n/g, ' ').trim();
-}
-
-function limpiarTexto(texto: string, palabrasClave: string[]): string {
-   // Utilizar una expresión regular para eliminar el texto que sigue a las palabras clave
-   const palabrasClaveRegex = new RegExp(
-      '(' + palabrasClave.map((palabra) => `\\s*\\.?\\s*${palabra}.*?`).join('|') + ')(?:\\.|$)',
-      'g',
-   );
-   const textoLimpio = texto.replace(palabrasClaveRegex, '');
-   return textoLimpio.trim();
 }

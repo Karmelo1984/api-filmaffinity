@@ -1,19 +1,31 @@
 export interface FilmResponse {
+   id_film: number;
    title: string;
    originalTitle: string;
    year: number;
-   duration: string;
-   sinopsys: string;
-   genre: string;
+   duration_min: number;
+   synopsis: string;
    rating: number;
    votes: number;
    image: string;
-   nationality: string;
-   directedBy: string;
-   screenplay: string;
-   cast: string;
-   cast_images: string;
-   music: string;
-   photography: string;
-   studio: string;
+   nationality: Pais[];
+   directedBy: Persona[];
+   cast: Persona[];
+   screenplay: Persona[];
+   genre: string[];
+   music: Persona[];
+   photography: Persona[];
+   studio: string[];
+}
+
+export interface Persona {
+   id_persona: number;
+   name: string;
+   photo: string | undefined;
+}
+
+export interface Pais {
+   id: string | undefined;
+   name: string | undefined;
+   photo: string | undefined;
 }
