@@ -5,11 +5,11 @@ import { processRequest } from '../middleware/processRequest';
 import { sendReadmeAsHtml, mergeMarkdownFiles } from '../utils/generateHTML';
 import { extractSecondLevelElements } from './utils';
 
-export { router };
-const router = express.Router();
-
 import * as fs from 'fs';
 import * as path from 'path';
+
+const router = express.Router();
+export { router };
 
 const releaseNotesMD = path.join(__dirname, '../../CHANGELOG.md');
 const readmeMD = path.join(__dirname, '../../README.md');

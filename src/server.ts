@@ -1,18 +1,17 @@
 import express from 'express';
-export const app = express();
-
 import cors from 'cors';
-
-app.use(cors());
-
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
+import bodyParser from 'body-parser';
 
 // Importa las rutas del servidor
-import { router as root } from './routes/routes.root';
-import { router as apiRoot } from './routes/api/routes.api';
+import { router as root } from './routes/root.routes';
+import { router as apiRoot } from './routes/api/api.routes';
 import { router as apiFilm } from './routes/api/film/film.routes';
 import { router as apiSearch } from './routes/api/search/search.routes';
+
+export const app = express();
+
+app.use(cors());
+app.use(bodyParser.json());
 
 // Asigna las rutas a la aplicación
 app.use('/', root);

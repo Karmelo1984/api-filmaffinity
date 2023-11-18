@@ -4,6 +4,12 @@ import logger from '../../../logger';
 import { getSearch } from '../../../utils/webScrapper';
 import { SearchRequest } from '../../../types/Request/SearchRequest';
 
+/**
+ * Controlador para obtener una búsqueda de películas mediante una solicitud GET.
+ *
+ * @param {Request} req - Objeto de solicitud de Express.
+ * @param {Response} res - Objeto de respuesta de Express.
+ */
 export const searchController = async (req: Request, res: Response) => {
    const functionName = 'searchController';
    const propertiesSearch = ['lang', 'query', 'year'];
