@@ -66,13 +66,19 @@ const logger = createLogger({
    ],
 });
 
+logger.error('');
+logger.error('');
+logger.error('');
+logger.error('');
 logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
 logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
 logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
 logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
 logger.error('* * * * * * * * * * * * * * NEW EXECUTION * * * * * * * * * * * * * *');
 logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
+logger.error(`* * * * * * * * * * * * * * * * * * * * * * * * *   v${varEntorno.APP_VERSION}  * * * * *`);
 logger.error('* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *');
+logger.error('');
 export default logger;
 
 /**

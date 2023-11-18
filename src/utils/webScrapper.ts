@@ -55,11 +55,6 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
    }
 }
 
-interface GuionData {
-   href?: string;
-   title?: string;
-}
-
 /**
  * Obtiene información detallada de una película a partir de la URL proporcionada.
  *
@@ -306,7 +301,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             }
             const enlace = $(this).find('.mc-title a').attr('href');
 
-            // Si enlace es undefinned, NO hay un enlace válido, no se ha ejecutado correctamente la búsqueda
+            // Si enlace es undefined, NO hay un enlace válido, no se ha ejecutado correctamente la búsqueda
             if (enlace === undefined) {
                return;
             }
@@ -334,7 +329,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
          const enlace = $('meta[property="og:url"]').attr('content') || '';
          const matchResult = extractIdFilmFromURL(enlace);
 
-         if (matchResult === null || (anyo_buscado > 0 && anyo_buscado != anyo_encontrado)) {
+         if (matchResult === null || matchResult < 0 || (anyo_buscado > 0 && anyo_buscado != anyo_encontrado)) {
             return createError(logger, 'getSearchedFilms', 'Sin coincidencias con estos parámetros', 404, url);
          }
 
