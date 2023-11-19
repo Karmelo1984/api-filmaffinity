@@ -17,7 +17,7 @@ export interface CustomError {
  */
 export function handleError(logger: Logger, msgLog: string, error: any, body: any = undefined): CustomError {
    const msg = (error as any).message;
-   logger.error(`${msgLog}  -->  ${msg}`);
+   logger.error(`${msgLog}  -->  CATCH: ${msg}`);
 
    const customError: CustomError = {
       statusCode: (error as any).statusCode || 500,
@@ -45,7 +45,7 @@ export function createError(
    statusCode: number = 500,
    body: any = undefined,
 ): CustomError {
-   logger.error(`${msgLog}  -->  GENERATED: ${msg}`);
+   logger.error(`${msgLog}  -->  CATCH: ${msg}`);
 
    const customError: CustomError = {
       statusCode,

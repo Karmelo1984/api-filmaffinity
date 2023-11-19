@@ -4,15 +4,15 @@ import { CustomError, handleError } from '../types/CustomError';
 import { varEntorno } from '../..';
 
 /**
- * Convierte un documento en formato Markdown a HTML.
+ * Convierte un documento Markdown a HTML.
  *
  * @param {string} data          - El contenido en formato Markdown a convertir a HTML.
  * @param {string} styleCss      - El CSS personalizado para aplicar al documento HTML.
- * @returns {string|CustomError} - El documento HTML resultante o un objeto CustomError si se produce un error.
+ * @returns {string | CustomError} - El documento HTML resultante o un objeto CustomError si se produce un error.
  */
-export function sendReadmeAsHtml(data: string, styleCss: string): string | CustomError {
-   const functionName = `sendReadmeAsHtml`;
-   logger.info(`${functionName}  -->  INICIO de la función`);
+export function markdownToHtml(data: string, styleCss: string): string | CustomError {
+   const functionName = `markdownToHtml`;
+   logger.info(`${functionName}  -->  START:`);
 
    try {
       // Convierte el Markdown en HTML
@@ -35,11 +35,11 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
             </body>
             </html>
         `;
-      logger.debug(`${functionName}  -->  FIN de la función: ${htmlContent}`);
 
+      logger.debug(`${functionName}  -->  END: ${htmlContent}`);
       return html;
    } catch (error) {
-      return handleError(logger, 'sendReadmeAsHtml', error);
+      return handleError(logger, functionName, error);
    }
 }
 
@@ -56,13 +56,13 @@ export function sendReadmeAsHtml(data: string, styleCss: string): string | Custo
  */
 export function mergeMarkdownFiles(originalContent: string, newContent: string, referencePhrase: string): string {
    const functionName = `mergeMarkdownFiles`;
-   logger.info(`${functionName}  -->  INICIO de la función`);
+   logger.info(`${functionName}  -->  START:`);
 
    try {
       const modOriginalContent = removeContentFromString(originalContent, referencePhrase);
       const text = appendFileToFile(modOriginalContent, newContent);
 
-      logger.debug(`${functionName}  -->  FIN de la función: ${text}`);
+      logger.debug(`${functionName}  -->  END: ${text}`);
 
       return text;
    } catch (error) {
@@ -82,13 +82,13 @@ export function mergeMarkdownFiles(originalContent: string, newContent: string, 
  */
 function removeContentFromString(content: string, referencePhrase: string): string {
    const functionName = `removeContentFromString`;
-   logger.info(`${functionName}  -->  INICIO de la función`);
+   logger.info(`${functionName}  -->  START:`);
 
    try {
       const referenceIndex = content.indexOf(referencePhrase);
       const contentBeforeReference = content.substring(0, referenceIndex);
 
-      logger.debug(`${functionName}  -->  FIN de la función: ${contentBeforeReference}`);
+      logger.debug(`${functionName}  -->  END: ${contentBeforeReference}`);
 
       return contentBeforeReference;
    } catch (error) {
@@ -108,12 +108,12 @@ function removeContentFromString(content: string, referencePhrase: string): stri
  */
 function appendFileToFile(sourceContent: string, destinationContent: string): string {
    const functionName = `appendFileToFile`;
-   logger.info(`${functionName}  -->  INICIO de la función`);
+   logger.info(`${functionName}  -->  START:`);
 
    try {
       const text = (sourceContent += destinationContent);
 
-      logger.debug(`${functionName}  -->  FIN de la función: ${text}`);
+      logger.debug(`${functionName}  -->  END: ${text}`);
 
       return text;
    } catch (error) {

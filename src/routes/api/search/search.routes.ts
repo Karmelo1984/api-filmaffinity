@@ -1,7 +1,6 @@
-import { Request, Response } from 'express';
 import express from 'express';
 import { processRequest } from '../../../middleware/processRequest';
-import { searchController } from './search.controller';
+import { searchController } from '../../../controllers/api/search/search.controller';
 
 export { router };
 const router = express.Router();

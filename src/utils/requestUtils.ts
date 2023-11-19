@@ -48,7 +48,7 @@ export const validateAndExtractParams = (res: any, properties: string[]): any | 
       }
    });
 
-   logger.debug(`${functionName}  -->  EXIT: ${JSON.stringify(values)}`);
+   logger.debug(`${functionName}  -->  END: ${JSON.stringify(values)}`);
    return values;
 };
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { validateAndExtractParams } from '../../../utils/requestUtils';
 import logger from '../../../logger';
+import { validateAndExtractParams } from '../../../utils/requestUtils';
 import { getSearch } from '../../../utils/webScrapper';
 import { SearchRequest } from '../../../types/Request/SearchRequest';
 
@@ -26,7 +26,7 @@ export const searchController = async (req: Request, res: Response) => {
 
       if (searchValues) {
          const result = await getSearch(values);
-         logger.debug(`${functionName}  -->  EXIT: router.get /api/search`);
+         logger.debug(`${functionName}  -->  END: router.get /api/search`);
 
          return res.send(result);
       }

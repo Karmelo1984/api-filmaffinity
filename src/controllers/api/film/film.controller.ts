@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
-
 import logger from '../../../logger';
-
 import { validateAndExtractParams } from '../../../utils/requestUtils';
 import { getInfoFilm } from '../../../utils/webScrapper';
-
 import { FilmRequest } from '../../../types/Request/FilmRequest';
 
 /**
@@ -80,7 +77,7 @@ const handleFilmRequest = async (
 
       if (filmValues) {
          const result = await getInfoFilm(values);
-         logger.info(`${functionName}  -->  EXIT: ${req.method} /api/film`);
+         logger.info(`${functionName}  -->  END: ${req.method} /api/film`);
 
          return res.send(result);
       }

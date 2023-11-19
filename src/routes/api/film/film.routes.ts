@@ -1,15 +1,8 @@
-import { Request, Response } from 'express';
 import express from 'express';
-import logger from '../../../logger';
 import { processRequest } from '../../../middleware/processRequest';
-
-import { FilmRequest } from '../../../types/Request/FilmRequest';
-import { getInfoFilm } from '../../../utils/webScrapper';
-import { hasOnlyValidParams } from '../../utils';
-import { getFilmController, postFilmController } from './film.controller';
+import { getFilmController, postFilmController } from '../../../controllers/api/film/film.controller';
 
 export { router };
-
 const router = express.Router();
 
 /**
