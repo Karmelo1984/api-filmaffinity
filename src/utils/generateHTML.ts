@@ -1,18 +1,14 @@
 import markdownIt from 'markdown-it';
-import logger from '../logger';
-import { CustomError, handleError } from '../types/CustomError';
+import { CustomError } from '../types/CustomError';
 import { varEntorno } from '../..';
 
-/**
- * Convierte un documento Markdown a HTML.
- *
- * @param {string} data          - El contenido en formato Markdown a convertir a HTML.
- * @param {string} styleCss      - El CSS personalizado para aplicar al documento HTML.
- * @returns {string | CustomError} - El documento HTML resultante o un objeto CustomError si se produce un error.
- */
-export function markdownToHtml(data: string, styleCss: string): string | CustomError {
+import { Logger } from '../models/Logger';
+import { ErrorHandler } from '../models/ErrorHandler';
+const logger = Logger.getInstance();
+
+export function markdownToHtml(id_request: number, data: string, styleCss: string): string | CustomError {
    const functionName = `markdownToHtml`;
-   logger.info(`${functionName}  -->  START:`);
+   logger.registerLog('info', functionName, 'START', id_request, `styleCss: ${styleCss} data: ${data}`);
 
    try {
       // Convierte el Markdown en HTML
@@ -36,10 +32,12 @@ export function markdownToHtml(data: string, styleCss: string): string | CustomE
             </html>
         `;
 
-      logger.debug(`${functionName}  -->  END: ${htmlContent}`);
+      logger.registerLog('info', functionName, 'END', id_request, `styleCss: ${styleCss} data: ${htmlContent}`);
       return html;
    } catch (error) {
-      return handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+
+      return errorHandler.handleError(error);
    }
 }
 
@@ -54,20 +52,25 @@ export function markdownToHtml(data: string, styleCss: string): string | CustomE
  * @returns {string} - El contenido resultante después de la combinación o el texto
  * original si ocurre un error.
  */
-export function mergeMarkdownFiles(originalContent: string, newContent: string, referencePhrase: string): string {
+export function mergeMarkdownFiles(
+   id_request: number,
+   originalContent: string,
+   newContent: string,
+   referencePhrase: string,
+): string {
    const functionName = `mergeMarkdownFiles`;
-   logger.info(`${functionName}  -->  START:`);
+   logger.registerLog('info', functionName, 'START', id_request, `originalContent, newContent, referencePhrase`);
 
    try {
-      const modOriginalContent = removeContentFromString(originalContent, referencePhrase);
-      const text = appendFileToFile(modOriginalContent, newContent);
+      const modOriginalContent = removeContentFromString(id_request, originalContent, referencePhrase);
+      const text = appendFileToFile(id_request, modOriginalContent, newContent);
 
-      logger.debug(`${functionName}  -->  END: ${text}`);
-
+      logger.registerLog('info', functionName, 'END', id_request, `${text}`);
       return text;
    } catch (error) {
-      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
+      const errorHandler = new ErrorHandler(functionName, id_request);
 
+      errorHandler.handleError(error);
       return originalContent;
    }
 }
@@ -80,19 +83,19 @@ export function mergeMarkdownFiles(originalContent: string, newContent: string, 
  * @returns {string}                - La cadena de texto resultante después de la eliminación o el texto
  * original si ocurre un error.
  */
-function removeContentFromString(content: string, referencePhrase: string): string {
+function removeContentFromString(id_request: number, content: string, referencePhrase: string): string {
    const functionName = `removeContentFromString`;
-   logger.info(`${functionName}  -->  START:`);
+   logger.registerLog('info', functionName, 'START', id_request, `content, referencePhrase`);
 
    try {
       const referenceIndex = content.indexOf(referencePhrase);
       const contentBeforeReference = content.substring(0, referenceIndex);
 
-      logger.debug(`${functionName}  -->  END: ${contentBeforeReference}`);
-
+      logger.registerLog('info', functionName, 'END', id_request, `${contentBeforeReference}`);
       return contentBeforeReference;
    } catch (error) {
-      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+      errorHandler.handleError(error);
 
       return content;
    }
@@ -106,18 +109,18 @@ function removeContentFromString(content: string, referencePhrase: string): stri
  * @returns {string | CustomError}     - El contenido resultante después de la adición o el texto
  * original si ocurre un error.
  */
-function appendFileToFile(sourceContent: string, destinationContent: string): string {
+function appendFileToFile(id_request: number, sourceContent: string, destinationContent: string): string {
    const functionName = `appendFileToFile`;
-   logger.info(`${functionName}  -->  START:`);
+   logger.registerLog('info', functionName, 'START', id_request, `sourceContent, destinationContent`);
 
    try {
       const text = (sourceContent += destinationContent);
 
-      logger.debug(`${functionName}  -->  END: ${text}`);
-
+      logger.registerLog('info', functionName, 'END', id_request, `${text}`);
       return text;
    } catch (error) {
-      logger.error(`${functionName}  -->  SIN MODIFICAR: ${error}`);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+      errorHandler.handleError(error);
 
       return sourceContent;
    }

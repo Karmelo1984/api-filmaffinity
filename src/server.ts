@@ -10,7 +10,14 @@ import { router as apiSearch } from './routes/api/search/search.routes';
 
 export const app = express();
 
+// Contador de peticiones request que ha tenido la aplicación
+import { requestCounterMiddleware } from './middleware/processRequest';
+app.use(requestCounterMiddleware);
+
+// Responde a solicitudes de diferentes orígenes
 app.use(cors());
+
+// Analiza el cuerpo de la solicitud y convierte el JSON en un objeto JavaScript
 app.use(bodyParser.json());
 
 // Asigna las rutas a la aplicación

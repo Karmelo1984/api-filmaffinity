@@ -13,4 +13,14 @@ const router = express.Router();
  * @param {Response} res - Objeto de respuesta Express.
  * @returns {void}
  */
+
+/**
+ * Ruta para obtener información sobre la aplicación mediante una solicitud GET.
+ *
+ * @name GET /
+ * @memberof module:FilmRouter
+ *
+ * @param {Function} processRequest     - Middleware para procesar la solicitud.
+ * @param {Function} rootController     - Controlador para la solicitud GET de información sobre la aplicación.
+ */
 router.get('/', processRequest, rootController);

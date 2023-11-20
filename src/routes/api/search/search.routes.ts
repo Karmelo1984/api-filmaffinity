@@ -6,15 +6,12 @@ export { router };
 const router = express.Router();
 
 /**
- * Ruta GET para realizar una búsqueda según la solicitud proporcionada.
+ * Ruta para buscar información sobre películas mediante una solicitud GET.
  *
- * Esta ruta utiliza el middleware 'processRequest' para capturar y procesar los datos de la solicitud HTTP.
- * Luego, construye una solicitud de búsqueda utilizando el objeto 'payload' de la solicitud y llama a la función 'validateSearchRequest' para validarla.
- * Si la solicitud de búsqueda no es válida, se registra un mensaje de error y se envía una respuesta de error al cliente.
- * Si la solicitud de búsqueda es válida, se llama a la función 'getSearch' para realizar la búsqueda y se envía la respuesta al cliente.
+ * @name GET /api/search
+ * @memberof module:SearchRouter
  *
- * @function '/api/search'
- * @param {Request} req - Solicitud HTTP.
- * @param {Response} res - Respuesta HTTP.
+ * @param {Function} processRequest       - Middleware para procesar la solicitud.
+ * @param {Function} searchController     - Controlador para la solicitud GET de busquedas de películas.
  */
 router.get('/', processRequest, searchController);

@@ -1,9 +1,8 @@
-import logger from '../logger';
 import request from 'request-promise';
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
 
-import { CustomError, handleError, createError } from '../types/CustomError';
+import { CustomError, createError } from '../types/CustomError';
 import { SearchResponse } from '../types/Response/SearchResponse';
 import { Persona, FilmResponse, Pais } from '../types/Response/FilmResponse';
 
@@ -11,6 +10,10 @@ import { FilmRequest } from '../types/Request/FilmRequest';
 import { SearchRequest } from '../types/Request/SearchRequest';
 
 import { varEntorno } from '../..';
+import { ErrorHandler } from '../models/ErrorHandler';
+
+import { Logger } from '../models/Logger';
+const logger = Logger.getInstance();
 
 const server: string = `${varEntorno.URL}:${varEntorno.PORT}`;
 
@@ -22,7 +25,7 @@ const server: string = `${varEntorno.URL}:${varEntorno.PORT}`;
  */
 export async function getSearch(search: SearchRequest): Promise<SearchResponse[] | CustomError> {
    const functionName: string = 'getSearch';
-   logger.info(`${functionName}  -->  START: ${JSON.stringify(search)}`);
+   logger.registerLog('info', functionName, 'START', search.id_request, `${JSON.stringify(search)}`);
 
    const url = `https://www.filmaffinity.com/${search.lang}/search.php?stype=title&stext=${encodeURIComponent(
       search.query,
@@ -31,10 +34,12 @@ export async function getSearch(search: SearchRequest): Promise<SearchResponse[]
    try {
       const result = await getSearchedFilms(url, search);
 
-      logger.debug(`${functionName}  -->  END: ${JSON.stringify(result)}`);
+      logger.registerLog('info', functionName, 'END', search.id_request, `${JSON.stringify(result)}`);
       return result;
    } catch (error) {
-      return handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, search.id_request);
+
+      return errorHandler.handleError(error);
    }
 }
 
@@ -46,17 +51,19 @@ export async function getSearch(search: SearchRequest): Promise<SearchResponse[]
  */
 export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | CustomError> {
    const functionName: string = 'getInfoFilm';
-   logger.info(`${functionName}  -->  START: ${JSON.stringify(film)}`);
+   logger.registerLog('info', functionName, 'START', film.id_request, `${JSON.stringify(film)}`);
 
    const url = film.url ? film.url : `https://www.filmaffinity.com/${film.lang}/film${film.id}.html`;
 
    try {
-      const result = await getFilmInfoFromUrl(film.lang, url);
+      const result = await getFilmInfoFromUrl(film.id_request, film.lang, url);
 
-      logger.debug(`${functionName}  -->  END: ${JSON.stringify(result)}`);
+      logger.registerLog('info', functionName, 'END', film.id_request, `${JSON.stringify(result)}`);
       return result;
    } catch (error) {
-      return handleError(logger, functionName, error, url);
+      const errorHandler = new ErrorHandler(functionName, film.id_request);
+
+      return errorHandler.handleError(error, url);
    }
 }
 
@@ -68,39 +75,45 @@ export async function getInfoFilm(film: FilmRequest): Promise<FilmResponse | Cus
  * @returns {FilmResponse | CustomError} - Un objeto FilmResponse con la información de la película si la búsqueda tiene éxito,
  * o un objeto CustomError si ocurre un error durante la búsqueda.
  */
-async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmResponse | CustomError> {
+async function getFilmInfoFromUrl(id_request: number, lang: string, url: string): Promise<FilmResponse | CustomError> {
    const functionName: string = 'getFilmInfoFromUrl';
-   logger.info(`${functionName}  -->  START: lang[${lang}] url[${url}]`);
+   logger.registerLog('info', functionName, 'START', id_request, `lang[${lang}] url[${url}]`);
 
    const isSpanish = lang === 'es';
    const quitarPalabrasDeGuion: string[] = ['Historia', 'Novela', 'Obra', 'Storyboard', 'Personajes', 'Videojuego'];
    const quitarPalabrasDeGenero: string[] = ['Productor', 'Producer', 'Distribuidora', 'Distributor'];
    const quitarPalabras = [...quitarPalabrasDeGenero, ...quitarPalabrasDeGuion];
 
-   logger.debug(`${functionName}  -->  Palabras a quitar: ${quitarPalabras.join(', ')}`);
+   logger.registerLog('debug', functionName, 'INFO', id_request, `Palabras a quitar: ${quitarPalabras.join(', ')}`);
 
    try {
-      const $ = await getPageHTML(url);
+      const $ = await getPageHTML(id_request, url);
 
       const getTitle = () => {
-         logger.debug(`${functionName}  -->  getTitle()`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `getTitle(${url})`);
          const title = $('h1#main-title span[itemprop="name"]').text().trim();
          const originalTitle = getInnerText(isSpanish ? 'Título original' : 'Original title').replace(/aka$/, '');
          return { title, originalTitle };
       };
 
       const getPerson = (label: string) => {
-         logger.debug(`${functionName}  -->  getPerson(${label})`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `getPerson(${label})`);
 
          let person: Persona[] = [];
          const selectorDom: string =
             label === 'actor' ? `li[itemprop="${label}"], span[itemprop="${label}"]` : `span[itemprop="${label}"]`;
 
-         logger.debug(`${functionName}  -->  getPerson(${label})       << ${selectorDom} >>`);
+         logger.registerLog(
+            'debug',
+            functionName,
+            'INFO',
+            id_request,
+            `getPerson(${label}), selectorDom(${selectorDom})`,
+         );
 
          $(selectorDom).each(function () {
             const hrefAttribute = $(this).find('a[itemprop="url"]').attr('href');
-            const idActor = extractIdPersonaFromURL(hrefAttribute);
+            const idActor = extractIdPersonaFromURL(id_request, hrefAttribute);
             const name = $(this).find('a[itemprop="url"]').attr('title');
             const photo = $(this).find('img').attr('src');
 
@@ -108,12 +121,18 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
                person.push({ id_persona: idActor, name: name.trim(), photo: photo });
             }
          });
-
+         logger.registerLog(
+            'debug',
+            functionName,
+            'INFO',
+            id_request,
+            `getPerson(${label}), return(${JSON.stringify(person)})`,
+         );
          return person;
       };
 
       const cleanAndSplit = (label: string) => {
-         logger.debug(`${functionName}  -->  cleanAndSplit(${label})`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `cleanAndSplit(${label})`);
 
          const texto = getInnerText(label)
             .split(' | ')
@@ -142,7 +161,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
       };
 
       const getInnerText = (label: string) => {
-         logger.debug(`${functionName}  -->  getInnerText(${label})`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `getInnerText(${label})`);
 
          return $('dt:contains("' + label + '")')
             .next('dd')
@@ -153,7 +172,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
       };
 
       const extractPersonMovieInfo = (label: string): Persona[] => {
-         logger.debug(`${functionName}  -->  extractPersonMovieInfo(${label})`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `extractPersonMovieInfo(${label})`);
 
          const data: Persona[] = [];
 
@@ -167,7 +186,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
                   const title = $(this).attr('title');
 
                   data.push({
-                     id_persona: extractIdPersonaFromURL(href),
+                     id_persona: extractIdPersonaFromURL(id_request, href),
                      name: title?.trim() || '',
                      photo: undefined,
                   });
@@ -182,7 +201,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
       };
 
       const extractCountry = (label: string): Pais[] => {
-         logger.debug(`${functionName}  -->  extractCountry(${label})`);
+         logger.registerLog('debug', functionName, 'INFO', id_request, `extractCountry(${label})`);
 
          const data: Pais[] = [];
 
@@ -209,7 +228,7 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
       };
 
       const result: FilmResponse = {
-         id_film: extractIdFilmFromURL(url),
+         id_film: extractIdFilmFromURL(id_request, url),
          ...getTitle(),
          year: parseInt(getInnerText(isSpanish ? 'Año' : 'Year'), 10),
          duration_min: parseInt(getInnerText(isSpanish ? 'Duración' : 'Running time'), 10),
@@ -227,10 +246,13 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
          genre: cleanAndSplit(isSpanish ? 'Género' : 'Genre'),
       };
 
-      logger.debug(`${functionName}  -->  END: ${JSON.stringify(result)}`);
+      logger.registerLog('info', functionName, 'END', id_request, `${JSON.stringify(result)}`);
+
       return result;
    } catch (error) {
-      return handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+
+      return errorHandler.handleError(error);
    }
 }
 
@@ -241,9 +263,9 @@ async function getFilmInfoFromUrl(lang: string, url: string): Promise<FilmRespon
  * @returns {boolean}      - `true` si el elemento es una busqueda, o false si es una película.
  * @throws {Error}         - Lanza un error si ocurre un problema durante la verificación del título.
  */
-function checkTitleForBusqueda($: CheerioAPI): boolean {
+function checkTitleForBusqueda(id_request: number, $: CheerioAPI): boolean {
    const functionName: string = 'checkTitleForBusqueda';
-   logger.info(`${functionName}  -->  START: $[${$.html}]`);
+   logger.registerLog('info', functionName, 'START', id_request, `CheerioAPI(${$.html})`);
 
    try {
       const pageTitle = $('head title').text();
@@ -251,10 +273,18 @@ function checkTitleForBusqueda($: CheerioAPI): boolean {
       // Verifica si el título comienza con "Búsqueda de"
       const isSearch = pageTitle.startsWith('Búsqueda de "') || pageTitle.startsWith('Search for "');
 
-      logger.debug(`${functionName}  -->  END: ${isSearch ? 'Es una búsqueda' : 'Es una película'}`);
+      logger.registerLog(
+         'info',
+         functionName,
+         'END',
+         id_request,
+         `${isSearch ? 'Es una búsqueda' : 'Es una película'}`,
+      );
       return isSearch;
    } catch (error) {
-      throw handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+
+      throw errorHandler.handleError(error);
    }
 }
 
@@ -265,9 +295,9 @@ function checkTitleForBusqueda($: CheerioAPI): boolean {
  * @returns {Promise<CheerioAPI>}   - Un objeto Cheerio que representa el contenido de la página web cargada.
  * @throws {CustomError}            - Lanza un error personalizado si ocurre un error durante la carga de la página o la solicitud.
  */
-async function getPageHTML(url: string): Promise<CheerioAPI> {
+async function getPageHTML(id_request: number, url: string): Promise<CheerioAPI> {
    const functionName: string = 'getPageHTML';
-   logger.info(`${functionName}  -->  START:  url[${url}]`);
+   logger.registerLog('info', functionName, 'START', id_request, `url(${url})`);
 
    try {
       const body = await request({
@@ -275,10 +305,12 @@ async function getPageHTML(url: string): Promise<CheerioAPI> {
          uri: url,
       });
 
-      logger.debug(`${functionName}  -->  END:  url[${url}]`);
+      logger.registerLog('info', functionName, 'END', id_request, `url(${url})`);
       return cheerio.load(body);
    } catch (error) {
-      throw handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, id_request);
+
+      throw errorHandler.handleError(error);
    }
 }
 
@@ -291,16 +323,17 @@ async function getPageHTML(url: string): Promise<CheerioAPI> {
  */
 async function getSearchedFilms(url: string, search: SearchRequest): Promise<SearchResponse[] | CustomError> {
    const functionName: string = 'getSearchedFilms';
-   logger.info(`${functionName}  -->  START:  url[${JSON.stringify(search)}}]`);
+   logger.registerLog('info', functionName, 'START', search.id_request, `${JSON.stringify(search)}`);
 
+   const errorHandler = new ErrorHandler(functionName, search.id_request);
    try {
       const result: SearchResponse[] = [];
-      const $ = await getPageHTML(url);
-      const isBusqueda = checkTitleForBusqueda($);
+      const $ = await getPageHTML(search.id_request, url);
+      const isBusqueda = checkTitleForBusqueda(search.id_request, $);
       const anyo_buscado = search.year ?? 0;
 
       if (isBusqueda) {
-         logger.debug(`${functionName}  -->  DESDE BÚSQUEDA: ${url}`);
+         logger.registerLog('debug', functionName, 'INFO', search.id_request, `BÚSQUEDA: ${url}`);
 
          $('.se-it.mt').each(function () {
             const anyo_encontrado = parseInt($(this).find('.ye-w').text(), 10);
@@ -316,7 +349,7 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             if (enlace === undefined) {
                return;
             }
-            const id = extractIdFilmFromURL(enlace);
+            const id = extractIdFilmFromURL(search.id_request, enlace);
             const lang = enlace.match(/\/([a-z]{2})\//)![1];
 
             const nota = $(this).find('.avgrat-box').text().trim().replace(',', '.');
@@ -333,15 +366,18 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
             });
          });
       } else {
-         logger.debug(`${functionName}  -->  DESDE PELÍCULA: ${url}`);
+         logger.registerLog('debug', functionName, 'INFO', search.id_request, `PELÍCULA: ${url}`);
 
-         const anyo_encontrado = parseInt(getTextFromCheerioAPI($, search.lang == 'es', 'Año', 'Year'), 10);
+         const anyo_encontrado = parseInt(
+            getTextFromCheerioAPI(search.id_request, $, search.lang == 'es', 'Año', 'Year'),
+            10,
+         );
 
          const enlace = $('meta[property="og:url"]').attr('content') || '';
-         const matchResult = extractIdFilmFromURL(enlace);
+         const matchResult = extractIdFilmFromURL(search.id_request, enlace);
 
          if (matchResult === null || matchResult < 0 || (anyo_buscado > 0 && anyo_buscado != anyo_encontrado)) {
-            return createError(logger, functionName, 'Sin coincidencias con estos parámetros', 404, url);
+            return errorHandler.createError('Sin coincidencias con estos parámetros', 404, url);
          }
 
          const lang = enlace.match(/\/([a-z]{2})\//)![1];
@@ -359,19 +395,15 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
          });
       }
       if (result.length === 0) {
-         return createError(
-            logger,
-            functionName,
-            'La API no ha podido generar un JSON ¿el año indicado es correcto?',
-            404,
-            url,
-         );
+         return errorHandler.createError('La API no ha podido generar un JSON ¿el año indicado es correcto?', 404, url);
       }
 
-      logger.debug(`${functionName}  -->  END:  url[${JSON.stringify(search)}}]`);
+      logger.registerLog('info', functionName, 'END', search.id_request, `${JSON.stringify(search)}`);
       return result;
    } catch (error) {
-      throw handleError(logger, functionName, error);
+      const errorHandler = new ErrorHandler(functionName, search.id_request);
+
+      throw errorHandler.handleError(error);
    }
 }
 
@@ -381,11 +413,9 @@ async function getSearchedFilms(url: string, search: SearchRequest): Promise<Sea
  * @param {string} url - La URL de la película.
  * @return {number} El ID de la película si se encuentra en la URL, o -1 si no se encuentra.
  */
-function extractIdFilmFromURL(url: string = ''): number {
-   //logger.debug(`extractIdFilmFromURL  -->  url: ${url}`);
-
+function extractIdFilmFromURL(id_request: number, url: string = ''): number {
    const filmIdRegex = /film(\d+)\.html/;
-   return extractIdFromURL(url, filmIdRegex);
+   return extractIdFromURL(id_request, url, filmIdRegex);
 }
 
 /**
@@ -394,11 +424,9 @@ function extractIdFilmFromURL(url: string = ''): number {
  * @param {string} url - La URL del actor.
  * @return {number} El ID del actor si se encuentra en la URL, o -1 si no se encuentra.
  */
-function extractIdPersonaFromURL(url: string = ''): number {
-   //logger.debug(`extractIdPersonaFromURL  -->  url: ${url}`);
-
+function extractIdPersonaFromURL(id_request: number, url: string = ''): number {
    const actorIdRegex = /name-id=(\d+)/;
-   return extractIdFromURL(url, actorIdRegex);
+   return extractIdFromURL(id_request, url, actorIdRegex);
 }
 
 /**
@@ -408,19 +436,17 @@ function extractIdPersonaFromURL(url: string = ''): number {
  * @param {RegExp} regex - La expresión regular que coincide con el ID en la URL.
  * @return {number} El ID si se encuentra en la URL, o -1 si no se encuentra.
  */
-function extractIdFromURL(url: string, regex: RegExp): number {
+function extractIdFromURL(id_request: number, url: string, regex: RegExp): number {
    const functionName: string = 'extractIdFromURL';
-   logger.info(`${functionName}  -->  START:     ${url}     -     ${regex}`);
+   logger.registerLog('info', functionName, 'START', id_request, `url(${url}), regex(${regex})`);
 
    const match = url.match(regex);
-
    let id: number = -1;
-
    if (match) {
       id = parseInt(match[1], 10);
    }
 
-   logger.debug(`${functionName}  -->  END:     ${id}`);
+   logger.registerLog('info', functionName, 'END', id_request, `id(${id})`);
    return id;
 }
 
@@ -433,13 +459,19 @@ function extractIdFromURL(url: string, regex: RegExp): number {
  * @param {string} enValue          - El valor del contexto en inglés.
  * @returns {string}                - El texto obtenido del objeto Cheerio, con saltos de línea eliminados y espacios extra recortados.
  */
-function getTextFromCheerioAPI(cheerio: CheerioAPI, inSpanish: boolean, esValue: string, enValue: string): string {
+function getTextFromCheerioAPI(
+   id_request: number,
+   cheerio: CheerioAPI,
+   inSpanish: boolean,
+   esValue: string,
+   enValue: string,
+): string {
    const functionName: string = 'getTextFromCheerioAPI';
    const parse = `dt:contains("${inSpanish ? esValue : enValue}")`;
-   logger.info(`${functionName}  -->  START:  parse[${parse}]`);
+   logger.registerLog('info', functionName, 'START', id_request, `parse(${parse})`);
 
    const result = cheerio(`${parse}`).next().text().replace(/\n/g, ' ').trim();
 
-   logger.debug(`${functionName}  -->  START:  parse[${parse}]`);
+   logger.registerLog('info', functionName, 'END', id_request, `parse(${parse})`);
    return result;
 }

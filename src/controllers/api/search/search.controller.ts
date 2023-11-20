@@ -1,24 +1,28 @@
 import { Request, Response } from 'express';
-import logger from '../../../logger';
-import { validateAndExtractParams } from '../../../utils/requestUtils';
+import { sanitizeParams } from '../../../utils/requestUtils';
+import { Logger } from '../../../models/Logger';
+const logger = Logger.getInstance();
+
 import { getSearch } from '../../../utils/webScrapper';
 import { SearchRequest } from '../../../types/Request/SearchRequest';
 
 /**
  * Controlador para obtener una búsqueda de películas mediante una solicitud GET.
  *
- * @param {Request} req - Objeto de solicitud de Express.
- * @param {Response} res - Objeto de respuesta de Express.
+ * @param {Request} req    - Objeto de solicitud de Express.
+ * @param {Response} res   - Objeto de respuesta de Express.
  */
 export const searchController = async (req: Request, res: Response) => {
    const functionName = 'searchController';
+   const id_request = parseInt(res.locals.processedData.id_request);
+   logger.registerLog('info', functionName, 'START', id_request, 'router.??? /api/search');
+
    const propertiesSearch = ['lang', 'query', 'year'];
 
-   logger.info(`${functionName}  -->  START: router.get /api/search`);
-
    try {
-      const searchValues: any = validateAndExtractParams(res, propertiesSearch);
+      const searchValues: any = sanitizeParams(res, propertiesSearch);
       const values: SearchRequest = {
+         id_request: id_request,
          lang: searchValues.lang,
          query: searchValues.query,
          year: parseInt(searchValues.year),
@@ -26,13 +30,12 @@ export const searchController = async (req: Request, res: Response) => {
 
       if (searchValues) {
          const result = await getSearch(values);
-         logger.debug(`${functionName}  -->  END: router.get /api/search`);
 
+         logger.registerLog('info', functionName, 'END', id_request, 'router.??? /api/search');
          return res.send(result);
       }
    } catch (error) {
-      logger.error(`${functionName}  -->  CATCH: router.get /api/search`);
-
+      logger.registerLog('error', functionName, 'CATCH', id_request, 'router.??? /api/search');
       return res.send(error);
    }
 };

@@ -1,10 +1,10 @@
 /**
  * Encuentra las propiedades con valores `undefined` en un objeto y devuelve sus nombres en un array.
  *
- * @param obj - El objeto en el que buscar propiedades `undefined`.
- * @returns Un array de strings que contiene los nombres de las propiedades con valores `undefined`.
+ * @param obj  - Objeto en el que buscar propiedades `undefined`.
+ * @returns    - Array de strings con los nombres de las propiedades con valores `undefined`.
  */
-export function findUndefinedProperties(obj: Record<string, any>): string[] {
+export const findUndefinedProperties = (obj: Record<string, any>): string[] => {
    const propKeys = Object.keys(obj);
    const propValues = Object.values(obj);
 
@@ -17,4 +17,4 @@ export function findUndefinedProperties(obj: Record<string, any>): string[] {
    }
 
    return undefinedVariables;
-}
+};

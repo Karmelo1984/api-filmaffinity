@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import logger from '../../logger';
-import { validateAndExtractParams } from '../../utils/requestUtils';
+import { sanitizeParams } from '../../utils/requestUtils';
+import { Logger } from '../../models/Logger';
+const logger = Logger.getInstance();
+
 import { markdownToHtml } from '../../utils/generateHTML';
 
 import * as fs from 'fs';
@@ -16,22 +18,22 @@ const cssFilePath = path.join(__dirname, '../../styles/style_03.css');
  */
 export const apiController = async (req: Request, res: Response) => {
    const functionName = 'apiController';
+   const id_request = parseInt(res.locals.processedData.id_request);
+   logger.registerLog('info', functionName, 'START', id_request, 'router.??? /api');
+
    const propertiesSearch = [''];
 
-   logger.info(`${functionName}  -->  START: router.get /api`);
-
    try {
-      validateAndExtractParams(res, propertiesSearch);
+      sanitizeParams(res, propertiesSearch);
 
       const data: string = fs.readFileSync(apiMD, 'utf8');
       const styleCss: string = fs.readFileSync(cssFilePath, 'utf8');
-      const result = markdownToHtml(data, styleCss);
+      const result = markdownToHtml(id_request, data, styleCss);
 
-      logger.debug(`${functionName}  -->  END: router.get /api`);
+      logger.registerLog('info', functionName, 'END', id_request, 'router.??? /api');
       return res.send(result);
    } catch (error) {
-      logger.error(`${functionName}  -->  CATCH: router.get /api`);
-
+      logger.registerLog('error', functionName, 'CATCH', id_request, 'router.??? /api');
       return res.send(error);
    }
 };

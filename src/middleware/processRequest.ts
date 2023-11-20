@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { incrementRequestCounter, requestCounter } from '../globalCounter';
 
 /**
  * Middleware para procesar la solicitud HTTP y almacenar datos relevantes en la variable local 'processedData' de la respuesta.
@@ -10,8 +11,9 @@ import { Request, Response, NextFunction } from 'express';
  * @param {Response} res      - El objeto Response que representa la respuesta HTTP.
  * @param {NextFunction} next - Función middleware para pasar la solicitud al siguiente middleware en la cadena.
  */
-export function processRequest(req: Request, res: Response, next: NextFunction) {
+export const processRequest = (req: Request, res: Response, next: NextFunction) => {
    res.locals.processedData = {
+      id_request: requestCounter,
       method: req.method,
       //ip: req.ip || req.connection.remoteAddress,
       //url: req.originalUrl,
@@ -25,4 +27,16 @@ export function processRequest(req: Request, res: Response, next: NextFunction) 
 
    // Llama a 'next()' si es necesario
    next();
-}
+};
+
+/**
+ * Middleware que sirve para contar el número de solicitudes.
+ *
+ * @param {Request} req       - Objeto de solicitud de Express.
+ * @param {Response} res      - Objeto de respuesta de Express.
+ * @param {NextFunction} next - Función para pasar la solicitud al siguiente middleware.
+ */
+export const requestCounterMiddleware = (req: Request, res: Response, next: NextFunction) => {
+   incrementRequestCounter();
+   next();
+};

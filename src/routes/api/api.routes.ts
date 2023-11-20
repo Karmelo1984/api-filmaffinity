@@ -6,9 +6,12 @@ export { router };
 const router = express.Router();
 
 /**
- * Maneja una solicitud HTTP GET en la ruta ('/api').
+ * Ruta para obtener la funcionalidad de la API mediante una solicitud GET.
  *
- * @function '/api'
- * @returns {void}
+ * @name GET /api
+ * @memberof module:FilmRouter
+ *
+ * @param {Function} processRequest     - Middleware para procesar la solicitud.
+ * @param {Function} apiController      - Controlador para la solicitud GET de información sobre la API.
  */
 router.get('/', processRequest, apiController);

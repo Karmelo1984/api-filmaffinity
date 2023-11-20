@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import logger from '../logger';
-import { validateAndExtractParams } from '../utils/requestUtils';
+import { sanitizeParams } from '../utils/requestUtils';
+import { Logger } from '../models/Logger';
+const logger = Logger.getInstance();
+
 import { mergeMarkdownFiles, markdownToHtml } from '../utils/generateHTML';
 
 import * as fs from 'fs';
@@ -17,25 +19,30 @@ const cssFilePath = path.join(__dirname, '../styles/style_03.css');
  */
 export const rootController = async (req: Request, res: Response) => {
    const functionName = 'rootController';
+   const id_request = parseInt(res.locals.processedData.id_request);
+   logger.registerLog('info', functionName, 'START', id_request, 'router.get /');
+
    const propertiesSearch = [''];
 
-   logger.info(`${functionName}  -->  START: router.get /`);
-
    try {
-      validateAndExtractParams(res, propertiesSearch);
+      sanitizeParams(res, propertiesSearch);
 
       const styleCss: string = fs.readFileSync(cssFilePath, 'utf8');
       const relesaeNotes: string = fs.readFileSync(releaseNotesMD, 'utf8');
       const readme: string = fs.readFileSync(readmeMD, 'utf8');
 
-      const newDocument: string = mergeMarkdownFiles(readme, relesaeNotes.replace(/^#/gm, '##'), '## API-REST');
-      const result = markdownToHtml(newDocument, styleCss);
+      const newDocument: string = mergeMarkdownFiles(
+         id_request,
+         readme,
+         relesaeNotes.replace(/^#/gm, '##'),
+         '## API-REST',
+      );
+      const result = markdownToHtml(id_request, newDocument, styleCss);
 
-      logger.debug(`${functionName}  -->  END: router.get /`);
+      logger.registerLog('info', functionName, 'END', id_request, 'router.get /');
       return res.send(result);
    } catch (error) {
-      logger.error(`${functionName}  -->  CATCH: router.get /`);
-
+      logger.registerLog('info', functionName, 'CATCH', id_request, 'router.get /');
       return res.send(error);
    }
 };
