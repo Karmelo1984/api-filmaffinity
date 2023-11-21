@@ -1,8 +1,7 @@
 *
-!/docs
-!/styles
 !/src
 !/index.ts
 !/README.md
+!/CHANGELOG.md
 !/package.json
 !/tsconfig.json

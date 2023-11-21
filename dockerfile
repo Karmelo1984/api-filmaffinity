@@ -33,7 +33,7 @@ RUN yarn run build
 
 FROM base AS production
 
-# NVariable de entorno con el nombre de un usuario predefinido de Alpine
+# Variable de entorno con el nombre de un usuario predefinido de Alpine
 #ENV USER node
 
 # Copiamos solo los ficheros necesarios entre "imagenes"
@@ -56,8 +56,8 @@ CMD ["dumb-init", "node", "dist/index.js"]
 
 
 
-# Construir la imagen Docker con una etiqueta específica (filmaffinity:v2.0.0)
-# docker build -t filmaffinity:v2.0.0 .
+# Construir la imagen Docker con una etiqueta específica (filmaffinity:v4.0.0)
+# docker build -t filmaffinity:v4.0.0 .
 
 # Ejecutar el contenedor con el nombre 'filmaffinity' en modo daemon (-d) y mapear el puerto
-# docker run --name filmaffinity -d -p 3000:3000 --env-file ./.env -v /var/log/contenedores_docker/api_filmaffinity:/usr/src/app/logs filmaffinity:v2.0.0 
+# docker run --name filmaffinity -d -p 3000:3000 --env-file ./.env -v /var/log/contenedores_docker/api_filmaffinity:/usr/src/app/logs filmaffinity:v4.0.0 
