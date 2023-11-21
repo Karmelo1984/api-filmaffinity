@@ -19,7 +19,7 @@ export interface FilmResponse {
 }
 
 export interface Persona {
-   id_persona: number;
+   id: number;
    name: string;
    photo: string | undefined;
 }

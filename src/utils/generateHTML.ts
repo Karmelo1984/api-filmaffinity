@@ -6,14 +6,22 @@ import { Logger } from '../models/Logger';
 import { ErrorHandler } from '../models/ErrorHandler';
 const logger = Logger.getInstance();
 
-export function markdownToHtml(id_request: number, data: string, styleCss: string): string | CustomError {
+/**
+ * Convierte el contenido Markdown a HTML, aplicando un estilo CSS adicional.
+ *
+ * @param {number} id_request       - Identificador único de la solicitud.
+ * @param {string} markdownData     - Contenido en formato Markdown a convertir a HTML.
+ * @param {string} styleCss         - Estilo CSS a aplicar al HTML resultante.
+ * @returns {string | CustomError}  - HTML resultante o un objeto CustomError si ocurre un error durante la conversión.
+ */
+export const markdownToHtml = (id_request: number, markdownData: string, styleCss: string): string | CustomError => {
    const functionName = `markdownToHtml`;
-   logger.registerLog('info', functionName, 'START', id_request, `styleCss: ${styleCss} data: ${data}`);
+   logger.registerLog('info', functionName, 'START', id_request, `styleCss: ${styleCss} markdownData: ${markdownData}`);
 
    try {
       // Convierte el Markdown en HTML
       const markdownParser = new markdownIt();
-      const htmlContent = markdownParser.render(data);
+      const htmlContent = markdownParser.render(markdownData);
 
       const html = `
             <!DOCTYPE html>
@@ -39,7 +47,7 @@ export function markdownToHtml(id_request: number, data: string, styleCss: strin
 
       return errorHandler.handleError(error);
    }
-}
+};
 
 /**
  * Combina el contenido de un archivo original con el contenido de un nuevo archivo,

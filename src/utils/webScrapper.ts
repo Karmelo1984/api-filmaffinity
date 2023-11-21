@@ -2,7 +2,7 @@ import request from 'request-promise';
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
 
-import { CustomError, createError } from '../types/CustomError';
+import { CustomError } from '../types/CustomError';
 import { SearchResponse } from '../types/Response/SearchResponse';
 import { Persona, FilmResponse, Pais } from '../types/Response/FilmResponse';
 
@@ -118,7 +118,7 @@ async function getFilmInfoFromUrl(id_request: number, lang: string, url: string)
             const photo = $(this).find('img').attr('src');
 
             if (name) {
-               person.push({ id_persona: idActor, name: name.trim(), photo: photo });
+               person.push({ id: idActor, name: name.trim(), photo: photo });
             }
          });
          logger.registerLog(
@@ -186,7 +186,7 @@ async function getFilmInfoFromUrl(id_request: number, lang: string, url: string)
                   const title = $(this).attr('title');
 
                   data.push({
-                     id_persona: extractIdPersonaFromURL(id_request, href),
+                     id: extractIdPersonaFromURL(id_request, href),
                      name: title?.trim() || '',
                      photo: undefined,
                   });
