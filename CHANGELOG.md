@@ -1,7 +1,17 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See
-[standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [4.0.0](https://github.com/Karmelo1984/api-filmaffinity/compare/v3.1.0...v4.0.0) (2023-11-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **/api/film:** Objeto 'film' rediseñado, sin compatibilidad con versiones anteriores.
+
+### Features
+
+* **/api/film:** se ha rediseñado el objeto JSON devuelto ([62f8f62](https://github.com/Karmelo1984/api-filmaffinity/commit/62f8f62714011a329686dfce6ddd1ce53c39d10e))
 
 ## [3.1.0](https://github.com/Karmelo1984/api-filmaffinity/compare/v3.0.0...v3.1.0) (2023-11-12)
 
